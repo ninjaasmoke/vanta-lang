@@ -1,0 +1,10 @@
+build/
+*.o
+*.a
+vanta
+*.dSYM
+.vscode/
+.idea/
+*.swp
+core
+vgcore.*
