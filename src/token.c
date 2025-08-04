@@ -1,0 +1,48 @@
+#include "token.h"
+
+static const char *names[TK__COUNT] = {
+    [TK_EOF]   = "eof",
+    [TK_ERROR] = "error",
+    [TK_IDENT] = "ident",
+    [TK_INT]   = "int",
+    [TK_FLOAT] = "float",
+    [TK_STRING]= "string",
+    [TK_MODULE]= "module",
+    [TK_IMPORT]= "import",
+    [TK_FN]    = "fn",
+    [TK_STRUCT]= "struct",
+    [TK_TYPE]  = "type",
+    [TK_RETURN]= "return",
+    [TK_IF]    = "if",
+    [TK_ELSE]  = "else",
+    [TK_WHILE] = "while",
+    [TK_FOR]   = "for",
+    [TK_IN]    = "in",
+    [TK_MATCH] = "match",
+    [TK_TRUE]  = "true",
+    [TK_FALSE] = "false",
+    [TK_ASSERT]= "assert",
+    [TK_LPAREN]= "(",  [TK_RPAREN]= ")",
+    [TK_LBRACE]= "{",  [TK_RBRACE]= "}",
+    [TK_LBRACK]= "[",  [TK_RBRACK]= "]",
+    [TK_COMMA] = ",",  [TK_DOT]   = ".",  [TK_COLON] = ":",
+    [TK_SEMI]  = ";",
+    [TK_AT]    = "@",
+    [TK_ARROW] = "->", [TK_FATARROW] = "=>",
+    [TK_DOTDOT]= "..", [TK_UNDERSCORE] = "_",
+    [TK_ASSIGN]= "=",  [TK_WALRUS]= ":=",
+    [TK_PLUS]  = "+",  [TK_MINUS] = "-",
+    [TK_STAR]  = "*",  [TK_SLASH] = "/", [TK_PERCENT] = "%",
+    [TK_AMP]   = "&",  [TK_BANG]  = "!",
+    [TK_EQ]    = "==", [TK_NEQ]   = "!=",
+    [TK_LT]    = "<",  [TK_GT]    = ">",
+    [TK_LE]    = "<=", [TK_GE]    = ">=",
+    [TK_AND]   = "&&", [TK_OR]    = "||",
+    [TK_PLUSEQ]= "+=", [TK_MINUSEQ]= "-=",
+    [TK_STAREQ]= "*=", [TK_SLASHEQ]= "/=",
+};
+
+const char *token_kind_name(TokenKind k) {
+    if (k < 0 || k >= TK__COUNT || !names[k]) return "?";
+    return names[k];
+}
