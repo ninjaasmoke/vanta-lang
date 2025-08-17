@@ -1,0 +1,10 @@
+module main
+
+fn add(a: int, b: int) -> int {
+    return a + b
+}
+
+fn main() -> int {
+    x := add(2, 3)
+    return x
+}
