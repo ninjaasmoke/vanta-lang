@@ -103,6 +103,21 @@ static Token lex_ident(Lexer *L, const char *start, int line, int col) {
 
 static Token lex_number(Lexer *L, const char *start, int line, int col) {
     int is_float = 0;
+    /* hex / binary integer literals */
+    if (start[0] == '0' && (peek(L) == 'x' || peek(L) == 'X')) {
+        advance(L);
+        while (isxdigit((unsigned char)peek(L)) || peek(L) == '_') advance(L);
+        Token t = make(L, TK_INT, start, line, col);
+        t.int_val = strtoll(start + 2, NULL, 16);
+        return t;
+    }
+    if (start[0] == '0' && (peek(L) == 'b' || peek(L) == 'B')) {
+        advance(L);
+        while (peek(L) == '0' || peek(L) == '1' || peek(L) == '_') advance(L);
+        Token t = make(L, TK_INT, start, line, col);
+        t.int_val = strtoll(start + 2, NULL, 2);
+        return t;
+    }
     while (isdigit((unsigned char)peek(L))) advance(L);
     if (peek(L) == '.' && isdigit((unsigned char)peek_at(L, 1))) {
         is_float = 1;
