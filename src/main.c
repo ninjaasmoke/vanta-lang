@@ -9,6 +9,9 @@
 #include "io.h"
 #include "lexer.h"
 #include "token.h"
+#include "parser.h"
+#include "ast.h"
+#include "arena.h"
 
 #define VANTA_VERSION "0.0.1"
 
@@ -19,7 +22,8 @@ static int usage(void) {
         "\n"
         "commands:\n"
         "  version          print version\n"
-        "  lex <file>       dump the token stream of <file>\n",
+        "  lex <file>       dump the token stream of <file>\n"
+        "  parse <file>     parse and pretty-print the AST\n",
         stderr);
     return 1;
 }
@@ -47,6 +51,28 @@ static int cmd_lex(int argc, char **argv) {
     return 0;
 }
 
+static int cmd_parse(int argc, char **argv) {
+    if (argc < 1) { fputs("parse: missing <file>\n", stderr); return 1; }
+    const char *path = argv[0];
+    size_t n = 0;
+    char *src = read_file(path, &n);
+    if (!src) return 1;
+
+    TokenVec toks = {0};
+    lexer_lex_all(src, path, &toks);
+
+    Arena a; arena_init(&a, 1 << 16);
+    Module *m = parse_module(&a, &toks, path);
+    int rc = 0;
+    if (!m) { rc = 1; }
+    else    { ast_print_module(m); }
+
+    arena_free(&a);
+    vec_free(&toks);
+    free(src);
+    return rc;
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) return usage();
     if (strcmp(argv[1], "version") == 0) {
@@ -55,6 +81,9 @@ int main(int argc, char **argv) {
     }
     if (strcmp(argv[1], "lex") == 0) {
         return cmd_lex(argc - 2, argv + 2);
+    }
+    if (strcmp(argv[1], "parse") == 0) {
+        return cmd_parse(argc - 2, argv + 2);
     }
     return usage();
 }
