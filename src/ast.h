@@ -23,6 +23,7 @@ typedef struct Stmt      Stmt;
 typedef struct Decl      Decl;
 typedef struct Attr      Attr;
 typedef struct Module    Module;
+typedef struct Type      Type;     /* defined in type.h, opaque here */
 
 typedef VEC(Expr*) ExprVec;
 typedef VEC(Stmt*) StmtVec;
@@ -84,6 +85,7 @@ struct Expr {
     ExprKind kind;
     Loc loc;
     AstType *type_hint;   /* unused for most, used by struct-lit */
+    Type    *resolved;    /* filled in by sema; NULL before */
     union {
         long long       int_val;
         double          float_val;
