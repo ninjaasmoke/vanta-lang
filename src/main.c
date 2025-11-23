@@ -111,7 +111,7 @@ static int cmd_check(int argc, char **argv) {
         rc = 1;
     } else {
         AttrSet active = attrset_make(&a, attrs.data, attrs.len);
-        SemaProgram *prog = sema_analyze(&a, m, &active);
+        SemaProgram *prog = sema_analyze_with_path(&a, m, &active, path);
         if (prog->had_error) rc = 1;
         else fputs("ok\n", stdout);
     }

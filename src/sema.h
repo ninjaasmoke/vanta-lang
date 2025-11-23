@@ -54,6 +54,10 @@ typedef struct {
 
 SemaProgram *sema_analyze(Arena *arena, Module *m, const AttrSet *active);
 
+/* Pass a filename if you want diagnostics to use it (defaults to module name). */
+SemaProgram *sema_analyze_with_path(Arena *arena, Module *m, const AttrSet *active,
+                                     const char *path);
+
 /* Look up the type sema attached to an expression (or NULL). */
 Type *sema_expr_type(Expr *e);
 

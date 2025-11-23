@@ -79,6 +79,7 @@ typedef VEC(VariantBucket) VariantBucketVec;
 struct Sema {
     Arena         *arena;
     Module        *module;
+    const char    *path;
     AttrSet        active;
 
     StructEntryVec structs;
@@ -106,7 +107,8 @@ static void sema_err(Sema *S, Loc loc, const char *fmt, ...) {
     S->had_error = 1;
     va_list ap; va_start(ap, fmt);
     fprintf(stderr, "%s:%d:%d: type error: ",
-            S->module->name ? S->module->name : "<input>",
+            S->path ? S->path
+                    : (S->module->name ? S->module->name : "<input>"),
             loc.line, loc.col);
     vfprintf(stderr, fmt, ap);
     fputc('\n', stderr);
@@ -768,9 +770,15 @@ static void check_fn_body(Sema *S, FnVariant *v) {
  * ============================================================ */
 
 SemaProgram *sema_analyze(Arena *arena, Module *m, const AttrSet *active) {
+    return sema_analyze_with_path(arena, m, active, NULL);
+}
+
+SemaProgram *sema_analyze_with_path(Arena *arena, Module *m, const AttrSet *active,
+                                     const char *path) {
     Sema S = {0};
     S.arena = arena;
     S.module = m;
+    S.path = path;
     S.active = active ? *active : (AttrSet){0};
     init_prims(&S);
 
