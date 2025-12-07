@@ -86,6 +86,8 @@ struct Expr {
     Loc loc;
     AstType *type_hint;   /* unused for most, used by struct-lit */
     Type    *resolved;    /* filled in by sema; NULL before */
+    void    *resolved_fn; /* for EX_CALL: FnVariant* picked by sema. opaque
+                             here to keep ast.h dep-free. */
     union {
         long long       int_val;
         double          float_val;

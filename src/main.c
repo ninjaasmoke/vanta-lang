@@ -26,7 +26,8 @@ static int usage(void) {
         "  version          print version\n"
         "  lex <file>       dump the token stream of <file>\n"
         "  parse <file>     parse and pretty-print the AST\n"
-        "  check <file>     parse and type-check (--attr NAME ...)\n",
+        "  check <file>     parse and type-check (--attr NAME ...)\n"
+        "  variants <file>  show which fn variant is selected for each name\n",
         stderr);
     return 1;
 }
@@ -122,6 +123,50 @@ static int cmd_check(int argc, char **argv) {
     return rc;
 }
 
+static int cmd_variants(int argc, char **argv) {
+    StrVec attrs = {0};
+    const char *path = parse_attr_args(argc, argv, &attrs);
+    if (!path) { fputs("variants: missing <file>\n", stderr); vec_free(&attrs); return 1; }
+
+    size_t n = 0;
+    char *src = read_file(path, &n);
+    if (!src) { vec_free(&attrs); return 1; }
+
+    TokenVec toks = {0};
+    lexer_lex_all(src, path, &toks);
+
+    Arena a; arena_init(&a, 1 << 16);
+    Module *m = parse_module(&a, &toks, path);
+    int rc = 0;
+    if (!m) { rc = 1; }
+    else {
+        AttrSet active = attrset_make(&a, attrs.data, attrs.len);
+        SemaProgram *prog = sema_analyze_with_path(&a, m, &active, path);
+        if (prog->had_error) rc = 1;
+        printf("active attrs: ");
+        if (active.count == 0) printf("(none)");
+        for (size_t i = 0; i < active.count; i++) printf("%s%s", i?",":"", active.names[i]);
+        printf("\n");
+        for (size_t i = 0; i < prog->fn_count; i++) {
+            FnVariantSet vs = prog->fns[i];
+            printf("fn %s: %zu variant(s)\n", vs.name, vs.count);
+            for (size_t j = 0; j < vs.count; j++) {
+                FnVariant *v = &vs.items[j];
+                printf("  [%zu] required={", j);
+                for (size_t k = 0; k < v->required.count; k++)
+                    printf("%s%s", k?",":"", v->required.names[k]);
+                int ok = attrset_subset(&v->required, &active);
+                printf("} %s\n", ok ? "selectable" : "skipped");
+            }
+        }
+    }
+    arena_free(&a);
+    vec_free(&toks);
+    vec_free(&attrs);
+    free(src);
+    return rc;
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) return usage();
     if (strcmp(argv[1], "version") == 0) {
@@ -136,6 +181,9 @@ int main(int argc, char **argv) {
     }
     if (strcmp(argv[1], "check") == 0) {
         return cmd_check(argc - 2, argv + 2);
+    }
+    if (strcmp(argv[1], "variants") == 0) {
+        return cmd_variants(argc - 2, argv + 2);
     }
     return usage();
 }

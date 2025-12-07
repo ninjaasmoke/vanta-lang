@@ -527,6 +527,9 @@ static Type *check_call(Sema *S, Expr *e) {
     if (!v)      { sema_err(S, e->loc, "no variant of '%s' matches active attributes", name);
                    e->resolved = S->t_error; return S->t_error; }
 
+    /* attach the picked variant — interp uses this for direct dispatch */
+    e->resolved_fn = v;
+
     if (e->call.args.len != v->param_count) {
         sema_err(S, e->loc, "'%s' expects %zu args, got %zu",
                  name, v->param_count, e->call.args.len);
