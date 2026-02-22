@@ -7,7 +7,7 @@
 static void collect_olds(Expr *e, ExprVec *out) {
     if (!e) return;
     switch (e->kind) {
-    case EX_OLD: vec_push(out, e->old_.inner); collect_olds(e->old_.inner, out); break;
+    case EX_OLD: vec_push(out, e); collect_olds(e->old_.inner, out); break;
     case EX_UNARY:  collect_olds(e->unary.e, out); break;
     case EX_BINARY: collect_olds(e->binary.l, out); collect_olds(e->binary.r, out); break;
     case EX_ASSIGN: collect_olds(e->assign.lhs, out); collect_olds(e->assign.rhs, out); break;
