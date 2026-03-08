@@ -1,0 +1,39 @@
+module main
+
+// Same Stack as stack.vt, but main() pushes one too many to trip @requires.
+
+struct Stack {
+    data: *int
+    size: int
+    capacity: int
+
+    @debug @invariant(size <= capacity)
+}
+
+@debug
+@requires(s != null)
+@requires(s.size < s.capacity)
+@ensures(s.size == old(s.size) + 1)
+fn push(s: *Stack, v: int) {
+    s.data[s.size] = v
+    s.size += 1
+}
+
+@release
+fn push(s: *Stack, v: int) {
+    s.data[s.size] = v
+    s.size += 1
+}
+
+fn main() -> int {
+    s := Stack {
+        data = alloc_array(int, 2),
+        size = 0,
+        capacity = 2
+    }
+    push(&s, 1)
+    push(&s, 2)
+    push(&s, 3)        // should trip @requires(s.size < s.capacity)
+    free(s.data)
+    return 0
+}

@@ -14,6 +14,8 @@
 #include "arena.h"
 #include "sema.h"
 #include "vec.h"
+#include "lower.h"
+#include "interp.h"
 
 #define VANTA_VERSION "0.0.1"
 
@@ -27,7 +29,8 @@ static int usage(void) {
         "  lex <file>       dump the token stream of <file>\n"
         "  parse <file>     parse and pretty-print the AST\n"
         "  check <file>     parse and type-check (--attr NAME ...)\n"
-        "  variants <file>  show which fn variant is selected for each name\n",
+        "  variants <file>  show which fn variant is selected for each name\n"
+        "  run <file>       run main() (--attr NAME ...)\n",
         stderr);
     return 1;
 }
@@ -167,6 +170,36 @@ static int cmd_variants(int argc, char **argv) {
     return rc;
 }
 
+static int cmd_run(int argc, char **argv) {
+    StrVec attrs = {0};
+    const char *path = parse_attr_args(argc, argv, &attrs);
+    if (!path) { fputs("run: missing <file>\n", stderr); vec_free(&attrs); return 1; }
+
+    size_t n = 0;
+    char *src = read_file(path, &n);
+    if (!src) { vec_free(&attrs); return 1; }
+
+    TokenVec toks = {0};
+    lexer_lex_all(src, path, &toks);
+
+    Arena a; arena_init(&a, 1 << 16);
+    Module *m = parse_module(&a, &toks, path);
+    int rc = 0;
+    if (!m) { rc = 1; goto done; }
+    AttrSet active = attrset_make(&a, attrs.data, attrs.len);
+    SemaProgram *prog = sema_analyze_with_path(&a, m, &active, path);
+    if (prog->had_error) { rc = 1; goto done; }
+    LoweredProgram *L = lower(&a, prog);
+    rc = interp_run(L);
+
+done:
+    arena_free(&a);
+    vec_free(&toks);
+    vec_free(&attrs);
+    free(src);
+    return rc;
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) return usage();
     if (strcmp(argv[1], "version") == 0) {
@@ -184,6 +217,9 @@ int main(int argc, char **argv) {
     }
     if (strcmp(argv[1], "variants") == 0) {
         return cmd_variants(argc - 2, argv + 2);
+    }
+    if (strcmp(argv[1], "run") == 0) {
+        return cmd_run(argc - 2, argv + 2);
     }
     return usage();
 }
