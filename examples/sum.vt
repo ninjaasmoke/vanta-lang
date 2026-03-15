@@ -1,0 +1,11 @@
+module main
+
+// for-range smoke test. should return 1+2+...+10 = 55.
+
+fn main() -> int {
+    sum := 0
+    for i in 1..11 {
+        sum += i
+    }
+    return sum
+}

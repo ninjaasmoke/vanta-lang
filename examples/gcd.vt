@@ -1,0 +1,16 @@
+module main
+
+// classic. exercises while + return inside a loop.
+
+fn gcd(a: int, b: int) -> int {
+    while b != 0 {
+        t := b
+        b = a % b
+        a = t
+    }
+    return a
+}
+
+fn main() -> int {
+    return gcd(48, 18)
+}
