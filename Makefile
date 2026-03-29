@@ -8,7 +8,7 @@ SRCS    := $(wildcard $(SRC_DIR)/*.c)
 OBJS    := $(patsubst $(SRC_DIR)/%.c,$(BUILD)/%.o,$(SRCS))
 BIN     := vanta
 
-.PHONY: all clean
+.PHONY: all clean test
 
 all: $(BIN)
 
@@ -20,6 +20,9 @@ $(BUILD)/%.o: $(SRC_DIR)/%.c | $(BUILD)
 
 $(BUILD):
 	@mkdir -p $(BUILD)
+
+test: $(BIN)
+	@./tests/run.sh
 
 clean:
 	rm -rf $(BUILD) $(BIN)
