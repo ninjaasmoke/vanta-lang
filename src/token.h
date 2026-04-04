@@ -38,11 +38,18 @@ typedef enum {
     TK_ASSIGN,        /* =  */
     TK_WALRUS,        /* := */
     TK_PLUS, TK_MINUS, TK_STAR, TK_SLASH, TK_PERCENT,
-    TK_AMP,           /* &  (address-of) */
+    TK_AMP,           /* &  (address-of OR bitwise-and depending on context) */
+    TK_PIPE,          /* |  bitwise or */
+    TK_CARET,         /* ^  bitwise xor */
+    TK_TILDE,         /* ~  bitwise not */
+    TK_SHL, TK_SHR,   /* << >> */
     TK_BANG,          /* !  */
     TK_EQ, TK_NEQ, TK_LT, TK_GT, TK_LE, TK_GE,
     TK_AND, TK_OR,    /* && || */
     TK_PLUSEQ, TK_MINUSEQ, TK_STAREQ, TK_SLASHEQ,
+
+    /* control-flow keywords (post-MVP) */
+    TK_BREAK, TK_CONTINUE,
 
     TK__COUNT
 } TokenKind;

@@ -147,12 +147,16 @@ typedef enum {
     PREC_ASSIGN,    /* = += etc */
     PREC_OR,        /* || */
     PREC_AND,       /* && */
+    PREC_BIT_OR,    /* |  */
+    PREC_BIT_XOR,   /* ^  */
+    PREC_BIT_AND,   /* &  (binary) */
     PREC_EQ,        /* == != */
     PREC_CMP,       /* < > <= >= */
     PREC_RANGE,     /* .. */
+    PREC_SHIFT,     /* << >> */
     PREC_TERM,      /* + - */
     PREC_FACTOR,    /* * / % */
-    PREC_UNARY,     /* ! - * & */
+    PREC_UNARY,     /* ! - * & ~ */
     PREC_CALL,      /* () [] . */
     PREC_PRIMARY
 } Prec;
@@ -163,9 +167,13 @@ static int op_precedence(TokenKind k) {
     case TK_STAREQ: case TK_SLASHEQ:                      return PREC_ASSIGN;
     case TK_OR:                                           return PREC_OR;
     case TK_AND:                                          return PREC_AND;
+    case TK_PIPE:                                         return PREC_BIT_OR;
+    case TK_CARET:                                        return PREC_BIT_XOR;
+    case TK_AMP:                                          return PREC_BIT_AND;
     case TK_EQ: case TK_NEQ:                              return PREC_EQ;
     case TK_LT: case TK_GT: case TK_LE: case TK_GE:       return PREC_CMP;
     case TK_DOTDOT:                                       return PREC_RANGE;
+    case TK_SHL: case TK_SHR:                             return PREC_SHIFT;
     case TK_PLUS: case TK_MINUS:                          return PREC_TERM;
     case TK_STAR: case TK_SLASH: case TK_PERCENT:         return PREC_FACTOR;
     case TK_LPAREN: case TK_LBRACK: case TK_DOT:          return PREC_CALL;
@@ -178,6 +186,9 @@ static Op tok_to_binop(TokenKind k) {
     case TK_PLUS: return OP_ADD; case TK_MINUS: return OP_SUB;
     case TK_STAR: return OP_MUL; case TK_SLASH: return OP_DIV;
     case TK_PERCENT: return OP_MOD;
+    case TK_AMP: return OP_BITAND; case TK_PIPE: return OP_BITOR;
+    case TK_CARET: return OP_BITXOR;
+    case TK_SHL: return OP_SHL;   case TK_SHR: return OP_SHR;
     case TK_EQ: return OP_EQ;   case TK_NEQ: return OP_NEQ;
     case TK_LT: return OP_LT;   case TK_GT: return OP_GT;
     case TK_LE: return OP_LE;   case TK_GE: return OP_GE;
@@ -271,15 +282,16 @@ static Expr *parse_primary(P *p) {
         expect(p, TK_RPAREN, "')'");
         return e;
     }
-    case TK_MINUS: case TK_BANG: case TK_STAR: case TK_AMP: {
+    case TK_MINUS: case TK_BANG: case TK_STAR: case TK_AMP: case TK_TILDE: {
         advance(p);
         Expr *operand = parse_precedence(p, PREC_UNARY);
         Op op;
         switch (t->kind) {
-        case TK_MINUS: op = OP_NEG;   break;
-        case TK_BANG:  op = OP_NOT;   break;
-        case TK_STAR:  op = OP_DEREF; break;
-        case TK_AMP:   op = OP_ADDR;  break;
+        case TK_MINUS: op = OP_NEG;    break;
+        case TK_BANG:  op = OP_NOT;    break;
+        case TK_STAR:  op = OP_DEREF;  break;
+        case TK_AMP:   op = OP_ADDR;   break;
+        case TK_TILDE: op = OP_BITNOT; break;
         default: op = OP_NEG;
         }
         Expr *e = ast_expr(p->arena, EX_UNARY, loc);

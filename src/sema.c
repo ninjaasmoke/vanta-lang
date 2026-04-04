@@ -423,6 +423,13 @@ static Type *check_binary(Sema *S, Expr *e) {
                      type_name(lt), type_name(rt));
         t = S->t_bool;
         break;
+    case OP_BITAND: case OP_BITOR: case OP_BITXOR:
+    case OP_SHL: case OP_SHR:
+        if (!type_is_integer(lt) || !type_is_integer(rt))
+            sema_err(S, e->loc, "bitwise op needs integers, got (%s, %s)",
+                     type_name(lt), type_name(rt));
+        t = lt;
+        break;
     default:
         sema_err(S, e->loc, "internal: unexpected binary op");
     }
@@ -439,9 +446,16 @@ static Type *check_unary(Sema *S, Expr *e) {
             sema_err(S, e->loc, "negate needs numeric, got %s", type_name(xt));
         t = xt; break;
     case OP_NOT:
+        /* '!x' on a pointer means 'x is null'. otherwise, must be a bool.
+         * keeps 'if !p { ... }' working without a separate is_null call. */
+        if (xt->kind == TY_PTR) { t = S->t_bool; break; }
         if (xt->kind != TY_BOOL)
-            sema_err(S, e->loc, "'!' needs bool, got %s", type_name(xt));
+            sema_err(S, e->loc, "'!' needs bool or pointer, got %s", type_name(xt));
         t = S->t_bool; break;
+    case OP_BITNOT:
+        if (!type_is_integer(xt))
+            sema_err(S, e->loc, "'~' needs integer, got %s", type_name(xt));
+        t = xt; break;
     case OP_DEREF:
         if (xt->kind != TY_PTR) {
             sema_err(S, e->loc, "cannot dereference non-pointer %s", type_name(xt));

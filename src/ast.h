@@ -72,7 +72,10 @@ typedef enum {
 
 typedef enum {
     OP_NEG, OP_NOT, OP_DEREF, OP_ADDR,
+    OP_BITNOT,                                  /* ~x  unary */
     OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD,
+    OP_BITAND, OP_BITOR, OP_BITXOR,             /* & | ^ */
+    OP_SHL, OP_SHR,                             /* << >> */
     OP_EQ, OP_NEQ, OP_LT, OP_GT, OP_LE, OP_GE,
     OP_AND, OP_OR,
     OP_ASSIGN, OP_ADDASSIGN, OP_SUBASSIGN, OP_MULASSIGN, OP_DIVASSIGN

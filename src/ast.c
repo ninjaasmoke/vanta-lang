@@ -62,8 +62,11 @@ static const char *op_str(Op o) {
     switch (o) {
     case OP_NEG: return "-"; case OP_NOT: return "!";
     case OP_DEREF: return "*"; case OP_ADDR: return "&";
+    case OP_BITNOT: return "~";
     case OP_ADD: return "+"; case OP_SUB: return "-";
     case OP_MUL: return "*"; case OP_DIV: return "/"; case OP_MOD: return "%";
+    case OP_BITAND: return "&"; case OP_BITOR: return "|"; case OP_BITXOR: return "^";
+    case OP_SHL: return "<<"; case OP_SHR: return ">>";
     case OP_EQ: return "=="; case OP_NEQ: return "!=";
     case OP_LT: return "<"; case OP_GT: return ">";
     case OP_LE: return "<="; case OP_GE: return ">=";

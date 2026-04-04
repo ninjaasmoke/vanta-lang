@@ -38,8 +38,11 @@ static const char *names[TK__COUNT] = {
     [TK_LT]    = "<",  [TK_GT]    = ">",
     [TK_LE]    = "<=", [TK_GE]    = ">=",
     [TK_AND]   = "&&", [TK_OR]    = "||",
+    [TK_PIPE]  = "|",  [TK_CARET] = "^",  [TK_TILDE] = "~",
+    [TK_SHL]   = "<<", [TK_SHR]   = ">>",
     [TK_PLUSEQ]= "+=", [TK_MINUSEQ]= "-=",
     [TK_STAREQ]= "*=", [TK_SLASHEQ]= "/=",
+    [TK_BREAK] = "break", [TK_CONTINUE] = "continue",
 };
 
 const char *token_kind_name(TokenKind k) {

@@ -195,6 +195,21 @@ static Value bin_arith(Interp *I, Loc loc, Op op, Value a, Value b) {
     return V_void();
 }
 
+static Value bin_bitwise(Interp *I, Loc loc, Op op, Value a, Value b) {
+    /* sema rejected non-integer; we just operate on the int payload. */
+    unsigned long long x = (unsigned long long)a.i;
+    unsigned long long y = (unsigned long long)b.i;
+    switch (op) {
+    case OP_BITAND: return V_int((long long)(x & y));
+    case OP_BITOR:  return V_int((long long)(x | y));
+    case OP_BITXOR: return V_int((long long)(x ^ y));
+    case OP_SHL:    return V_int((long long)(x << (y & 63)));
+    case OP_SHR:    return V_int((long long)(x >> (y & 63)));
+    default: die(I, loc, "internal: not bitwise");
+    }
+    return V_void();
+}
+
 static int values_equal(Value a, Value b) {
     if (a.kind != b.kind) {
         /* allow int/float comparison */
@@ -458,7 +473,12 @@ static Value eval(Interp *I, Frame *f, Expr *e) {
         case OP_NEG:
             if (x.kind == V_FLOAT) return V_float(-x.f);
             return V_int(-x.i);
-        case OP_NOT: return V_bool(!truthy(x));
+        case OP_NOT:
+            /* '!p' on a pointer is the nullness check. on a bool, the usual. */
+            if (x.kind == V_PTR) return V_bool(x.p == NULL);
+            return V_bool(!truthy(x));
+        case OP_BITNOT:
+            return V_int(~x.i);
         case OP_DEREF:
             if (x.kind != V_PTR || !x.p) die(I, e->loc, "deref nil");
             return *x.p;
@@ -483,6 +503,9 @@ static Value eval(Interp *I, Frame *f, Expr *e) {
         switch (op) {
         case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_MOD:
             return bin_arith(I, e->loc, op, a, b);
+        case OP_BITAND: case OP_BITOR: case OP_BITXOR:
+        case OP_SHL: case OP_SHR:
+            return bin_bitwise(I, e->loc, op, a, b);
         case OP_EQ: case OP_NEQ: case OP_LT: case OP_GT: case OP_LE: case OP_GE:
             return bin_cmp(op, a, b);
         default: break;
@@ -672,7 +695,7 @@ static Value call_fn(Interp *I, FnVariant *v, Value *args, size_t n, Loc call_lo
     Value ret = V_void();
     exec_block(I, f, &d->fn.body, &ret);
 
-    /* @ensures — make `result` visible inside the postcondition. */
+    /* @ensures - make `result` visible inside the postcondition. */
     if (lf && lf->ensures.len > 0) {
         bind(f, "result", ret);
     }

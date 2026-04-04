@@ -82,6 +82,7 @@ static struct { const char *s; TokenKind k; } kws[] = {
     { "in",     TK_IN     }, { "match",  TK_MATCH  },
     { "true",   TK_TRUE   }, { "false",  TK_FALSE  },
     { "assert", TK_ASSERT },
+    { "break",  TK_BREAK  }, { "continue", TK_CONTINUE },
     { NULL, 0 }
 };
 
@@ -224,13 +225,17 @@ Token lexer_next(Lexer *L) {
     case '!': if (match(L, '=')) return make(L, TK_NEQ,     start, line, col);
               return make(L, TK_BANG,    start, line, col);
     case '<': if (match(L, '=')) return make(L, TK_LE,      start, line, col);
+              if (match(L, '<')) return make(L, TK_SHL,     start, line, col);
               return make(L, TK_LT,      start, line, col);
     case '>': if (match(L, '=')) return make(L, TK_GE,      start, line, col);
+              if (match(L, '>')) return make(L, TK_SHR,     start, line, col);
               return make(L, TK_GT,      start, line, col);
     case '&': if (match(L, '&')) return make(L, TK_AND,     start, line, col);
               return make(L, TK_AMP,     start, line, col);
     case '|': if (match(L, '|')) return make(L, TK_OR,      start, line, col);
-              return make_err(L, "stray '|'", start, line, col);
+              return make(L, TK_PIPE,    start, line, col);
+    case '^': return make(L, TK_CARET, start, line, col);
+    case '~': return make(L, TK_TILDE, start, line, col);
     case '"': return lex_string(L, start, line, col);
     case '\'': return lex_char(L, start, line, col);
     }
