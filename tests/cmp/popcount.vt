@@ -2,37 +2,31 @@ module main;
 
 // Population count: number of 1-bits in an integer.
 //
-// THIS IS WHERE C IS THE GOLD STANDARD.
+// Brian Kernighan's trick: `x & (x - 1)` strips the lowest 1.
+// Same as the C version, character for character.
 //
-// Vanta has no bitwise operators (yet). No `&`, no `|`, no `^`, no
-// `<<` or `>>`. So we have to fake popcount with division by 2 and
-// modulo 2. It works, but it's clearly worse:
-//
-//   * The one-line `x &= x - 1` Kernighan trick is just gone.
-//   * Any program that actually wants bits — hash tables, bitsets,
-//     wire formats, parsers — has to wait for vanta to grow up.
+// Now that vanta has bitwise ops this is no longer embarrassing.
+// (The git history of this file is its own joke.)
 //
 // Expected result: same total as popcount.c = 24.
 
 @requires(x >= 0)
 fn popcount(x: int) -> int {
     c := 0;
-    while x > 0 {
-        if x % 2 == 1 {
-            c = c + 1;
-        }
-        x = x / 2;
+    while x != 0 {
+        x = x & (x - 1);
+        c = c + 1;
     }
     return c;
 }
 
 fn main() -> int {
     total := 0;
-    total = total + popcount(255);    // 0xFF -> 8
-    total = total + popcount(240);    // 0xF0 -> 4
-    total = total + popcount(15);     // 0x0F -> 4
-    total = total + popcount(0);      // 0x00 -> 0
-    total = total + popcount(170);    // 0xAA -> 4
-    total = total + popcount(85);     // 0x55 -> 4
+    total = total + popcount(0xFF);
+    total = total + popcount(0xF0);
+    total = total + popcount(0x0F);
+    total = total + popcount(0x00);
+    total = total + popcount(0xAA);
+    total = total + popcount(0x55);
     return total;                     // 24
 }
