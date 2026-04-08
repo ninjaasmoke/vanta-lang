@@ -119,7 +119,9 @@ typedef enum {
     ST_FOR,          /* for x in lo..hi { } */
     ST_RETURN,
     ST_ASSERT,
-    ST_MATCH
+    ST_MATCH,
+    ST_BREAK,
+    ST_CONTINUE
 } StmtKind;
 
 typedef struct { Expr *pattern; StmtVec body; int is_default; } MatchArm;

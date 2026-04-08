@@ -566,7 +566,7 @@ static Value eval(Interp *I, Frame *f, Expr *e) {
  * Statement execution
  * ============================================================ */
 
-typedef enum { GO, RETURNED } Flow;
+typedef enum { GO, RETURNED, BROKE, CONTINUED } Flow;
 
 static Flow exec_block(Interp *I, Frame *f, StmtVec *body, Value *retval);
 
@@ -585,7 +585,7 @@ static Flow exec_stmt(Interp *I, Frame *f, Stmt *s, Value *retval) {
         Frame *inner = frame_new(f);
         Flow fl = exec_block(I, inner, &s->block, retval);
         frame_free(inner);
-        if (fl == RETURNED) return RETURNED;
+        if (fl != GO) return fl;
         break;
     }
     case ST_IF: {
@@ -594,7 +594,7 @@ static Flow exec_stmt(Interp *I, Frame *f, Stmt *s, Value *retval) {
         Frame *inner = frame_new(f);
         Flow fl = exec_block(I, inner, body, retval);
         frame_free(inner);
-        if (fl == RETURNED) return RETURNED;
+        if (fl != GO) return fl;
         break;
     }
     case ST_WHILE: {
@@ -605,6 +605,8 @@ static Flow exec_stmt(Interp *I, Frame *f, Stmt *s, Value *retval) {
             Flow fl = exec_block(I, inner, &s->while_.body, retval);
             frame_free(inner);
             if (fl == RETURNED) return RETURNED;
+            if (fl == BROKE)    break;
+            /* CONTINUED falls through to next iteration */
         }
         break;
     }
@@ -621,12 +623,15 @@ static Flow exec_stmt(Interp *I, Frame *f, Stmt *s, Value *retval) {
             Flow fl = exec_block(I, inner, &s->for_.body, retval);
             frame_free(inner);
             if (fl == RETURNED) return RETURNED;
+            if (fl == BROKE)    break;
         }
         break;
     }
     case ST_RETURN:
         *retval = s->expr ? eval(I, f, s->expr) : V_void();
         return RETURNED;
+    case ST_BREAK:    return BROKE;
+    case ST_CONTINUE: return CONTINUED;
     case ST_ASSERT: {
         Value c = eval(I, f, s->expr);
         if (!truthy(c)) die(I, s->loc, "assertion failed");
@@ -643,7 +648,7 @@ static Flow exec_stmt(Interp *I, Frame *f, Stmt *s, Value *retval) {
             Frame *inner = frame_new(f);
             Flow fl = exec_block(I, inner, &a.body, retval);
             frame_free(inner);
-            if (fl == RETURNED) return RETURNED;
+            if (fl != GO) return fl;
             return GO;
         }
         break;
@@ -655,7 +660,7 @@ static Flow exec_stmt(Interp *I, Frame *f, Stmt *s, Value *retval) {
 static Flow exec_block(Interp *I, Frame *f, StmtVec *body, Value *retval) {
     for (size_t i = 0; i < body->len; i++) {
         Flow fl = exec_stmt(I, f, body->data[i], retval);
-        if (fl == RETURNED) return RETURNED;
+        if (fl != GO) return fl;
     }
     return GO;
 }

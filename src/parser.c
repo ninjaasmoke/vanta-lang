@@ -507,6 +507,18 @@ static Stmt *parse_stmt(P *p) {
     case TK_MATCH:  return parse_match(p);
     case TK_RETURN: return parse_return(p);
     case TK_ASSERT: return parse_assert(p);
+    case TK_BREAK: {
+        Loc loc = loc_of(advance(p));
+        Stmt *s = ast_stmt(p->arena, ST_BREAK, loc);
+        expect(p, TK_SEMI, "';'");
+        return s;
+    }
+    case TK_CONTINUE: {
+        Loc loc = loc_of(advance(p));
+        Stmt *s = ast_stmt(p->arena, ST_CONTINUE, loc);
+        expect(p, TK_SEMI, "';'");
+        return s;
+    }
     case TK_LBRACE: {
         Stmt *s = ast_stmt(p->arena, ST_BLOCK, loc_of(peek(p)));
         parse_block(p, &s->block);

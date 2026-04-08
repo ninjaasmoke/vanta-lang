@@ -95,6 +95,7 @@ struct Sema {
     /* current function context */
     FnVariant *cur_fn;
     Scope     *scope;
+    int        loop_depth;     /* >0 inside a while/for body */
 
     int had_error;
 };
@@ -734,14 +735,20 @@ static void check_stmt(Sema *S, Stmt *st) {
         Type *c = check_expr(S, st->while_.cond);
         if (c->kind != TY_BOOL && c->kind != TY_ERROR)
             sema_err(S, st->loc, "while cond must be bool");
-        push_scope(S); check_block(S, &st->while_.body); pop_scope(S);
+        push_scope(S);
+        S->loop_depth++;
+        check_block(S, &st->while_.body);
+        S->loop_depth--;
+        pop_scope(S);
         break;
     }
     case ST_FOR: {
         Type *r = check_expr(S, st->for_.range);
         push_scope(S);
         scope_add(S, st->for_.var, r, 0);
+        S->loop_depth++;
         check_block(S, &st->for_.body);
+        S->loop_depth--;
         pop_scope(S);
         break;
     }
@@ -776,6 +783,14 @@ static void check_stmt(Sema *S, Stmt *st) {
         }
         break;
     }
+    case ST_BREAK:
+    case ST_CONTINUE:
+        if (S->loop_depth <= 0) {
+            sema_err(S, st->loc,
+                     "'%s' outside of a loop",
+                     st->kind == ST_BREAK ? "break" : "continue");
+        }
+        break;
     }
 }
 
