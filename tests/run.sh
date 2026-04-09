@@ -97,6 +97,7 @@ printf '\n--- tests/showcase: vanta-only features ---\n'
 check_exit "showcase/old_value"           3  "$VANTA" run --debug tests/showcase/old_value.vt
 check_exit "showcase/struct_invariant"   10  "$VANTA" run --debug tests/showcase/struct_invariant.vt
 check_exit "showcase/result_ensures"     15  "$VANTA" run --debug tests/showcase/result_ensures.vt
+check_exit "showcase/break_continue"     43  "$VANTA" run tests/showcase/break_continue.vt
 # variant_dispatch must fail in either mode but with different messages.
 check_exit "showcase/variant_dispatch dbg" 2 "$VANTA" run --debug   tests/showcase/variant_dispatch.vt
 check_exit "showcase/variant_dispatch rel" 2 "$VANTA" run --release tests/showcase/variant_dispatch.vt

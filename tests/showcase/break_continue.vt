@@ -1,0 +1,48 @@
+module main;
+
+// break / continue, the boring useful kind.
+//
+// find_idx: linear scan, break out when we hit the target.
+// odd_sum:  sum every value except the multiples of 3.
+//
+// Without these you write extra flag variables and pretend you're
+// happy about it.
+
+@requires(n >= 0)
+@ensures(result == 0 - 1 || (result >= 0 && result < n))
+fn find_idx(a: *int, n: int, target: int) -> int {
+    found := 0 - 1;
+    i := 0;
+    while i < n {
+        if a[i] == target {
+            found = i;
+            break;
+        }
+        i = i + 1;
+    }
+    return found;
+}
+
+@requires(n >= 0)
+fn odd_sum(a: *int, n: int) -> int {
+    s := 0;
+    i := 0;
+    while i < n {
+        i = i + 1;
+        if a[i - 1] % 3 == 0 { continue; }
+        s = s + a[i - 1];
+    }
+    return s;
+}
+
+fn main() -> int {
+    a := alloc_array(int, 8);
+    a[0] = 5; a[1] = 7; a[2] = 9; a[3] = 11;
+    a[4] = 4; a[5] = 6; a[6] = 13; a[7] = 12;
+
+    idx := find_idx(a, 8, 11);   // 3
+    s   := odd_sum(a, 8);        // 5+7+11+4+13 = 40, drops 9,6,12
+
+    free(a);
+    return idx + s;              // 3 + 40 = 43
+}
