@@ -1,0 +1,47 @@
+module main;
+
+// Sieve of Eratosthenes. counts primes up to (and including) 100.
+// pi(100) = 25.
+//
+// Compare to sieve.c. Same algorithm, same exit code. Vanta gets a
+// little nicer here because:
+//   - alloc_array(int, n+1) is a one-liner; C's `char is_composite[101]`
+//     works only because n is constant.
+//   - @ensures(result >= 0 && result <= n) pins the count to a sane
+//     range without an extra assert.
+// C wins on raw speed because we're a tree-walking interpreter, but
+// the lines come out about even.
+
+@requires(n >= 0)
+@ensures(result >= 0 && result <= n)
+fn count_primes_up_to(n: int) -> int {
+    is_composite := alloc_array(int, n + 1);    // 0 = prime, 1 = composite
+
+    i := 2;
+    while i * i <= n {
+        if is_composite[i] != 0 {
+            i = i + 1;
+            continue;
+        }
+        j := i * i;
+        while j <= n {
+            is_composite[j] = 1;
+            j = j + i;
+        }
+        i = i + 1;
+    }
+
+    count := 0;
+    k := 2;
+    while k <= n {
+        if is_composite[k] == 0 { count = count + 1; }
+        k = k + 1;
+    }
+
+    free(is_composite);
+    return count;
+}
+
+fn main() -> int {
+    return count_primes_up_to(100);   // 25
+}
