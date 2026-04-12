@@ -104,7 +104,11 @@ struct Sema {
  * ============================================================ */
 
 static void sema_err(Sema *S, Loc loc, const char *fmt, ...) {
+    /* if we already chose TY_ERROR for a sub-expr we sometimes still get
+     * here once. cap at 50 errors to keep terminals readable. */
+    static int max_reported = 50;
     S->had_error = 1;
+    if (max_reported-- <= 0) return;
     va_list ap; va_start(ap, fmt);
     fprintf(stderr, "%s:%d:%d: type error: ",
             S->path ? S->path
