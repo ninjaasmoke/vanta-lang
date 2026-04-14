@@ -1,0 +1,66 @@
+module main;
+
+// Levenshtein edit distance between "kitten" and "sitting".
+//
+// Classic 2D DP. Answer is 3 (k->s, e->i, insert g).
+//
+// Same algorithm as edit_distance.c. Two real differences:
+//
+//   * C declares `int dp[16][16];` on the stack. We don't have multi-
+//     dim arrays so we flatten to 1D and index with `i*W + j`. That's
+//     the matmul situation again. C wins on syntax.
+//
+//   * Vanta @requires/@ensures pin la,lb >= 0 and 0 <= result <= max(la,lb).
+//     Cheap insurance against an off-by-one in the row-counter.
+//
+// Verdict: C edges it. The dp[i][j] indexing alone saves five typos
+// in the body.
+
+fn min3(a: int, b: int, c: int) -> int {
+    m := a;
+    if b < m { m = b; }
+    if c < m { m = c; }
+    return m;
+}
+
+@requires(la >= 0 && lb >= 0)
+@ensures(result >= 0)
+fn edit_distance(a: *u8, la: int, b: *u8, lb: int) -> int {
+    w := lb + 1;                                 // row stride
+    dp := alloc_array(int, (la + 1) * w);
+
+    i := 0;
+    while i <= la {
+        dp[i * w + 0] = i;
+        i = i + 1;
+    }
+    j := 0;
+    while j <= lb {
+        dp[0 * w + j] = j;
+        j = j + 1;
+    }
+
+    i = 1;
+    while i <= la {
+        j = 1;
+        while j <= lb {
+            cost := 1;
+            if a[i - 1] == b[j - 1] { cost = 0; }
+            dp[i * w + j] = min3(dp[(i - 1) * w + j] + 1,
+                                  dp[i * w + (j - 1)] + 1,
+                                  dp[(i - 1) * w + (j - 1)] + cost);
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    r := dp[la * w + lb];
+    free(dp);
+    return r;
+}
+
+fn main() -> int {
+    a := "kitten";
+    b := "sitting";
+    return edit_distance(a, 6, b, 7);   // 3
+}
