@@ -1,0 +1,100 @@
+module main;
+
+// Reverse-polish calculator.
+//
+// Evaluates "3 4 + 5 *" -> 35.
+//
+// THIS IS THE BIG ONE. Real algorithm: byte-level parsing, a struct
+// with @invariant on stack size, push/pop with @requires guarding
+// over/underflow, and a tag-dispatched operator handler. Same shape
+// as rpn.c but every contract C had to put in a comment is now a
+// machine-checked assertion.
+//
+// Compare:
+//   * C: `assume size < CAP` (in a comment).
+//     V: @requires(s.size < s.capacity), @invariant(0 <= size <= capacity).
+//   * C: `assume size > 0` (in a comment).
+//     V: @requires(s.size > 0).
+//   * C: division-by-zero is UB.
+//     V: interpreter dies cleanly with 'division by zero'.
+//
+// Verdict: this is the kind of thing vanta exists for. C is shorter
+// because of the typedef and switch-on-char. Vanta is the one you'd
+// trust at 3am.
+
+struct Stack {
+    data:     *int
+    size:     int
+    capacity: int
+
+    @debug @invariant(size >= 0 && size <= capacity)
+}
+
+@debug
+@requires(s != null)
+@requires(s.size < s.capacity)
+@ensures(s.size == old(s.size) + 1)
+fn push(s: *Stack, v: int) {
+    s.data[s.size] = v;
+    s.size = s.size + 1;
+}
+
+@release
+fn push(s: *Stack, v: int) {
+    s.data[s.size] = v;
+    s.size = s.size + 1;
+}
+
+@debug
+@requires(s != null)
+@requires(s.size > 0)
+@ensures(s.size == old(s.size) - 1)
+fn pop(s: *Stack) -> int {
+    s.size = s.size - 1;
+    return s.data[s.size];
+}
+
+@release
+fn pop(s: *Stack) -> int {
+    s.size = s.size - 1;
+    return s.data[s.size];
+}
+
+fn apply(op: int, a: int, b: int) -> int {
+    if op == '+' { return a + b; }
+    if op == '-' { return a - b; }
+    if op == '*' { return a * b; }
+    if op == '/' { return a / b; }
+    return 0;
+}
+
+@requires(n >= 0)
+fn eval_rpn(src: *u8, n: int) -> int {
+    s := alloc(Stack);
+    s.data     = alloc_array(int, 32);
+    s.size     = 0;
+    s.capacity = 32;
+
+    i := 0;
+    while i < n {
+        c := src[i];
+        i = i + 1;
+        if c == ' ' { continue; }
+        if c >= '0' && c <= '9' {
+            push(s, c - '0');
+            continue;
+        }
+        b := pop(s);
+        a := pop(s);
+        push(s, apply(c, a, b));
+    }
+    r := pop(s);
+    free(s.data);
+    free(s);
+    return r;
+}
+
+fn main() -> int {
+    expr := "3 4 + 5 *";
+    return eval_rpn(expr, 9);   // (3+4)*5 = 35
+}
