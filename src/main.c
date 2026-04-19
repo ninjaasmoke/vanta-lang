@@ -89,6 +89,10 @@ static const char *parse_attr_args(int argc, char **argv, StrVec *out) {
         if (strcmp(argv[i], "--attr") == 0 && i + 1 < argc) {
             vec_push(out, (const char *)argv[i + 1]);
             i++;
+        } else if (strcmp(argv[i], "--debug") == 0) {
+            vec_push(out, (const char *)"debug");
+        } else if (strcmp(argv[i], "--release") == 0) {
+            vec_push(out, (const char *)"release");
         } else {
             file = argv[i];
         }
