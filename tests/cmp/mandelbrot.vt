@@ -1,0 +1,36 @@
+module main;
+
+// Mandelbrot escape time. Same as mandelbrot.c.
+//
+// Both languages have float arithmetic. The big difference: vanta
+// has no real complex number type, so we hand-thread (zr, zi) the
+// same way C does. This is a wash: it's clunky in both.
+//
+// (-0.5, 0): never escapes within 100 iters -> 100.
+// ( 1.0, 0): escapes at iter 2.
+// total: 102.
+//
+// Verdict: dead even. Float code is float code.
+
+@requires(max_iter > 0)
+@ensures(result >= 0 && result <= max_iter)
+fn escape(cr: f64, ci: f64, max_iter: int) -> int {
+    zr := 0.0;
+    zi := 0.0;
+    i := 0;
+    while i < max_iter {
+        zr2 := zr * zr - zi * zi + cr;
+        zi2 := 2.0 * zr * zi + ci;
+        zr = zr2;
+        zi = zi2;
+        if zr * zr + zi * zi > 4.0 { return i; }
+        i = i + 1;
+    }
+    return max_iter;
+}
+
+fn main() -> int {
+    a := escape(0.0 - 0.5, 0.0, 100);   // 100
+    b := escape(1.0,       0.0, 100);   //   2
+    return a + b;                       // 102
+}
