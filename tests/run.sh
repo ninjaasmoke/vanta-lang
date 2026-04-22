@@ -128,6 +128,7 @@ expect_fail() {
 printf '\n--- tests/fail: programs that must fail ---\n'
 expect_fail "fail/pre_violation"    2 "@requires failed"     "$VANTA" run --debug tests/fail/pre_violation.vt
 expect_fail "fail/post_violation"   2 "@ensures failed"      "$VANTA" run --debug tests/fail/post_violation.vt
+expect_fail "fail/invariant"        2 "@invariant failed"    "$VANTA" run --debug tests/fail/invariant_violation.vt
 expect_fail "fail/assert_fires"     2 "assertion failed"     "$VANTA" run tests/fail/assert_fires.vt
 expect_fail "fail/type_error"       1 "type error"           "$VANTA" check tests/fail/type_error.vt
 expect_fail "fail/variant_ambig"    1 "ambiguous variant"    "$VANTA" check --debug tests/fail/variant_ambiguous.vt

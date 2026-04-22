@@ -51,4 +51,7 @@ LoweredProgram *lower(Arena *a, SemaProgram *prog);
 /* Locate the LoweredFn for a chosen variant. */
 LoweredFn *lower_find(LoweredProgram *L, FnVariant *v);
 
+/* Locate the LoweredStruct for a struct type, or NULL if no invariants. */
+LoweredStruct *lower_find_struct(LoweredProgram *L, const Type *t);
+
 #endif

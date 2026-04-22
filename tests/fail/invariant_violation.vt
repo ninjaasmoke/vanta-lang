@@ -1,0 +1,29 @@
+module main;
+
+// expect: exit 2 (under --debug)
+// expect-msg: @invariant failed on Range
+//
+// Range carries an invariant that lo <= hi. The body of break_it
+// writes to hi first to make it less than lo. Under --debug the
+// per-mutation invariant check fires immediately on that write,
+// before the next statement runs.
+
+struct Range {
+    lo: int
+    hi: int
+
+    @debug @invariant(lo <= hi)
+}
+
+fn break_it(r: *Range) {
+    r.hi = 0 - 1;     // lo=0, hi=-1 -> invariant violated
+    r.lo = 0 - 5;     // (we never get here under --debug)
+}
+
+fn main() -> int {
+    r := alloc(Range);
+    r.lo = 0;
+    r.hi = 5;
+    break_it(r);
+    return 0;
+}

@@ -111,3 +111,13 @@ LoweredFn *lower_find(LoweredProgram *L, FnVariant *v) {
     }
     return NULL;
 }
+
+LoweredStruct *lower_find_struct(LoweredProgram *L, const Type *t) {
+    if (!t) return NULL;
+    for (size_t i = 0; i < L->struct_count; i++) {
+        if (L->structs[i].type == t) {
+            return L->structs[i].invariants.len > 0 ? &L->structs[i] : NULL;
+        }
+    }
+    return NULL;
+}

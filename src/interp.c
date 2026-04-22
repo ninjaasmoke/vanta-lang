@@ -339,6 +339,38 @@ static Value eval_assign(Interp *I, Frame *f, Expr *e) {
         rhs = bin_arith(I, e->loc, binop, *lhs.slot, rhs);
     }
     *lhs.slot = rhs;
+
+    /* after a field write on a struct, re-check that struct's invariants.
+     * spec: invariants run after every mutation point of the struct. */
+    if (e->assign.lhs->kind == EX_FIELD) {
+        Value base = eval(I, f, e->assign.lhs->field.base);
+        Value *target = &base;
+        if (target->kind == V_PTR) target = target->p;
+        if (target && target->kind == V_STRUCT && target->st.type) {
+            LoweredStruct *ls = lower_find_struct(I->L, target->st.type);
+            if (ls) {
+                Frame *inv = frame_new(NULL);
+                /* bind each field by name so 'lo <= hi' resolves. */
+                for (size_t i = 0; i < target->st.type->fields.len; i++) {
+                    bind(inv,
+                         target->st.type->fields.data[i].name,
+                         target->st.fields[i]);
+                }
+                for (size_t i = 0; i < ls->invariants.len; i++) {
+                    Value c = eval(I, inv, ls->invariants.data[i].cond);
+                    if (!truthy(c)) {
+                        frame_free(inv);
+                        die(I, ls->invariants.data[i].loc,
+                            "@invariant failed on %s",
+                            target->st.type->struct_name
+                                ? target->st.type->struct_name : "<struct>");
+                    }
+                }
+                frame_free(inv);
+            }
+        }
+    }
+
     return rhs;
 }
 
