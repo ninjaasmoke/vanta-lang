@@ -2,7 +2,7 @@ module main;
 
 // `old(expr)` snapshots a value on call entry so the postcondition
 // can talk about pre-call state. Counter is one of the cleanest
-// examples — every increment must move the value up by exactly one.
+// examples - every increment must move the value up by exactly one.
 //
 // Drop --attr debug and the postcondition is gone from the IR. No
 // runtime cost.

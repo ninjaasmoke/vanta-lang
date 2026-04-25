@@ -8,7 +8,7 @@ module main;
 @debug
 @requires(x >= 0)
 fn sqrt_int(x: int) -> int {
-    // tiny iterative sqrt — only correct for x >= 0
+    // tiny iterative sqrt - only correct for x >= 0
     r := 0;
     while (r + 1) * (r + 1) <= x {
         r = r + 1;

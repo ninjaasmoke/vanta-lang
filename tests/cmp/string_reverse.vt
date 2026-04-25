@@ -3,7 +3,7 @@ module main;
 // Reverse a string in place.
 //
 // Now a fair fight against string_reverse.c (for a while it was a
-// rout — see git history, we used to fake strings with int arrays).
+// rout - see git history, we used to fake strings with int arrays).
 //
 //   * `s := "hello";` allocates a fresh mutable *u8 of length 5.
 //   * `s[i]` reads/writes a byte, just like char in C.
@@ -11,7 +11,7 @@ module main;
 //
 // The one thing C still has on us is `strlen`. We pass the length
 // in by hand. Honestly that's what a careful C programmer does
-// anyway — strlen-on-every-call is a known footgun.
+// anyway - strlen-on-every-call is a known footgun.
 //
 // Returns the ASCII value of the new first char ('o' = 111).
 

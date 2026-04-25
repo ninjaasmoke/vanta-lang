@@ -5,7 +5,7 @@ module main;
 // Both languages do this in essentially the same way. The arithmetic
 // `s[i] - 'a' + 'A'` is identical character-for-character. Vanta's
 // `@ensures(result == 0)` could pin `to_upper` doesn't accidentally
-// return something — but it's a void fn, so we'll pin a different
+// return something - but it's a void fn, so we'll pin a different
 // invariant on a helper.
 
 @requires(c >= 0 && c <= 255)

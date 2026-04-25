@@ -7,7 +7,7 @@ module main;
 //
 // What Vanta adds:
 //
-//   * @requires on partition pins down the indices we expect — the
+//   * @requires on partition pins down the indices we expect - the
 //     compiler will not let you call partition on an empty range
 //     under --debug.
 //

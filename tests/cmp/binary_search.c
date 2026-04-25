@@ -3,7 +3,7 @@
  * Notice the manual `assert(n >= 0)` we'd add in real code.
  * Notice also the classic `(low + high) / 2` overflow trap that we
  * have to remember to write as `low + (high - low) / 2`. The
- * compiler does not help us here at all — the precondition lives
+ * compiler does not help us here at all - the precondition lives
  * in a comment, the postcondition lives in our heads.
  *
  * exit code = index of 7 in {1,3,5,7,9,11} = 3.

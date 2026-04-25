@@ -10,7 +10,7 @@ interpreter. See [IMPL.md](IMPL.md) for the language specification.
 
 - **Contracts that vanish in release.** `@requires` / `@ensures` /
   `@invariant` are gated by an attribute. Active in `--debug`, dropped
-  in `--release` — no `#ifdef NDEBUG`, no per-callsite checks.
+  in `--release` - no `#ifdef NDEBUG`, no per-callsite checks.
 
   ```c
   @debug @requires(s.size < s.capacity)

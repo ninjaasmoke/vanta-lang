@@ -1,6 +1,6 @@
 module main;
 
-// Function variants gated by attributes — the headline feature.
+// Function variants gated by attributes - the headline feature.
 //
 // Two variants of `divide`. Same name, same arg list. The compiler
 // picks one based on `--attr`. There is no runtime branch; the
@@ -9,7 +9,7 @@ module main;
 //   --debug    : the @requires(d != 0) variant. Will trip a clean
 //                contract failure on divide-by-zero.
 //   --release  : the bare variant. Faster (no check), but division
-//                by zero is undefined behavior — your problem.
+//                by zero is undefined behavior - your problem.
 //
 // Demonstration:
 //   $ ./vanta run --debug   examples/showcase/variant_dispatch.vt

@@ -2,7 +2,7 @@
  *
  * exit code = sum = 15.
  *
- * C handles linked structures naturally — declare a Node, point to
+ * C handles linked structures naturally - declare a Node, point to
  * the next one, malloc/free as you go. The whole thing is 30 lines.
  */
 #include <stdlib.h>

@@ -8,6 +8,6 @@ module main;
 fn main() -> int {
     x := 1;
     y := true;
-    z := x + y;       // bool + int — sema rejects
+    z := x + y;       // bool + int - sema rejects
     return z;
 }
