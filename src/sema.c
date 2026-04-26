@@ -274,14 +274,27 @@ static void bucket_push(Arena *a, VariantBucket *b, FnVariant v) {
     b->items[b->count++] = v;
 }
 
-/* extract the gating attribute names from a Decl's attribute list (the
- * ones that aren't invariants). */
+/* extract the gating attribute names from a Decl's attribute list.
+ *
+ * intuition: a non-invariant attr immediately followed by an invariant
+ * attr (@requires/@ensures/@invariant) is gating *that contract*, not
+ * the function variant. so '@debug @requires(x) fn foo()' makes foo
+ * always selectable, with the contract gated by debug.
+ *
+ * a non-invariant attr followed by another non-invariant (or by EOL)
+ * is a fn-variant gate, so '@debug fn foo()' still means
+ * "this variant of foo only exists when debug is active".
+ */
 static AttrSet decl_required_attrs(Sema *S, AttrVec *attrs) {
     const char **names = (const char **)arena_alloc(S->arena, sizeof(char *) * (attrs->len + 1));
     size_t k = 0;
     for (size_t i = 0; i < attrs->len; i++) {
         Attr *a = attrs->data[i];
         if (is_invariant_attr(a->name)) continue;
+        /* if the *next* attr is an invariant, this attr is the gate
+         * for that invariant — not for the fn variant. skip it. */
+        if (i + 1 < attrs->len && is_invariant_attr(attrs->data[i + 1]->name))
+            continue;
         names[k++] = a->name;
     }
     AttrSet s;
