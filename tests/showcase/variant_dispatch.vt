@@ -1,40 +1,48 @@
 module main;
 
-// Function variants gated by attributes - the headline feature.
+// Variant dispatch — the actual point of it.
 //
-// Two variants of `divide`. Same name, same arg list. The compiler
-// picks one based on `--attr`. There is no runtime branch; the
-// non-selected variant is gone.
+// Two `trace` functions, same name, same signature, completely
+// different bodies. You CANNOT express this with a single body +
+// @debug @ensures: the bodies do different things (println vs
+// nothing) — they have different side effects, not different
+// contracts.
 //
-//   --debug    : the @requires(d != 0) variant. Will trip a clean
-//                contract failure on divide-by-zero.
-//   --release  : the bare variant. Faster (no check), but division
-//                by zero is undefined behavior - your problem.
+// Sema picks one variant per call site based on --attr. The
+// non-selected variant is never lowered into the IR.
 //
-// Demonstration:
-//   $ ./vanta run --debug   examples/showcase/variant_dispatch.vt
-//   runtime error at .... : @requires failed in 'divide'   (exit 2)
+// The C equivalent is `#ifdef NDEBUG` macro piles. Vanta makes it
+// two function definitions and lets the resolver figure it out.
 //
-//   $ ./vanta run --release examples/showcase/variant_dispatch.vt
-//   runtime error at .... : division by zero               (exit 2)
+// What you see:
 //
-// Same source, two distinct binaries. C would do this with macros
-// and ifdef noise.
+//   $ ./vanta run --debug   tests/showcase/variant_dispatch.vt
+//   trace 10
+//   trace 20
+//   trace 30
+//   30
+//
+//   $ ./vanta run --release tests/showcase/variant_dispatch.vt
+//   (no output)
+//   30
+//
+// Same exit code. Different observed behavior. The release binary
+// literally has no `println` instructions in it.
 
 @debug
-@requires(d != 0)
-fn divide(n: int, d: int) -> int {
-    return n / d;
+fn trace(v: int) -> int {
+    print("trace ");
+    println(v);
+    return v;
 }
 
 @release
-fn divide(n: int, d: int) -> int {
-    return n / d;
+fn trace(v: int) -> int {
+    return v;
 }
 
 fn main() -> int {
-    a := divide(20, 4);     // 5, both modes
-    b := divide(7, 0);      // boom in either mode, but with different
-                            // diagnostics
-    return a + b;
+    a := trace(10);
+    b := trace(20);
+    return trace(a + b);   // 30 either way
 }

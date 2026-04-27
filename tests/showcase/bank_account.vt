@@ -1,0 +1,62 @@
+module main;
+
+// BankAccount: invariants doing real work.
+//
+// Two layers of safety on the same data:
+//
+//   1. struct @invariant(balance >= 0)
+//      Sema's lowering puts a check after every field assignment.
+//      Anything that ever leaves balance negative — including a
+//      function that doesn't bother with @requires — gets caught
+//      at the assignment, not at "the next user notices".
+//
+//   2. fn-level @requires(amount <= acc.balance) on withdraw
+//      Catches the bad call earlier, at the call site, with a
+//      clearer message ("@requires failed in 'withdraw'") than
+//      "@invariant failed on BankAccount".
+//
+// You usually want both. The fn contract gives a useful error;
+// the struct invariant is the safety net for code paths that
+// haven't been blessed with a contract yet.
+//
+// All these checks are gated by --attr debug. Under --release
+// they vanish: bank teller code that ran clean in dev runs lean
+// in prod.
+
+struct BankAccount {
+    balance: int
+
+    @debug @invariant(balance >= 0)
+}
+
+@debug
+@requires(acc != null)
+@requires(amount >= 0)
+@ensures(acc.balance == old(acc.balance) + amount)
+fn deposit(acc: *BankAccount, amount: int) {
+    acc.balance = acc.balance + amount;
+}
+
+@debug
+@requires(acc != null)
+@requires(amount >= 0)
+@requires(amount <= acc.balance)
+@ensures(acc.balance == old(acc.balance) - amount)
+fn withdraw(acc: *BankAccount, amount: int) {
+    acc.balance = acc.balance - amount;
+}
+
+fn main() -> int {
+    a := alloc(BankAccount);
+    a.balance = 0;
+
+    deposit(a, 100);     // balance 100
+    deposit(a, 50);      // balance 150
+    withdraw(a, 30);     // balance 120
+    withdraw(a, 70);     // balance 50
+    deposit(a, 7);       // balance 57
+
+    r := a.balance;
+    free(a);
+    return r;            // 57
+}

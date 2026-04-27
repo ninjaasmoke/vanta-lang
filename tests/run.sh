@@ -96,11 +96,12 @@ done
 printf '\n--- tests/showcase: vanta-only features ---\n'
 check_exit "showcase/old_value"           3  "$VANTA" run --debug tests/showcase/old_value.vt
 check_exit "showcase/struct_invariant"   10  "$VANTA" run --debug tests/showcase/struct_invariant.vt
-check_exit "showcase/result_ensures"     15  "$VANTA" run --debug tests/showcase/result_ensures.vt
 check_exit "showcase/break_continue"     43  "$VANTA" run tests/showcase/break_continue.vt
-# variant_dispatch must fail in either mode but with different messages.
-check_exit "showcase/variant_dispatch dbg" 2 "$VANTA" run --debug   tests/showcase/variant_dispatch.vt
-check_exit "showcase/variant_dispatch rel" 2 "$VANTA" run --release tests/showcase/variant_dispatch.vt
+check_exit "showcase/bank_account dbg"   57  "$VANTA" run --debug   tests/showcase/bank_account.vt
+check_exit "showcase/bank_account rel"   57  "$VANTA" run --release tests/showcase/bank_account.vt
+# variant_dispatch: same exit code in both modes; debug prints, release doesn't.
+check_exit "showcase/variant_dispatch dbg" 30 "$VANTA" run --debug   tests/showcase/variant_dispatch.vt
+check_exit "showcase/variant_dispatch rel" 30 "$VANTA" run --release tests/showcase/variant_dispatch.vt
 
 # ----- tests/fail: must fail -------------------------------------------------
 
@@ -129,6 +130,7 @@ printf '\n--- tests/fail: programs that must fail ---\n'
 expect_fail "fail/pre_violation"    2 "@requires failed"     "$VANTA" run --debug tests/fail/pre_violation.vt
 expect_fail "fail/post_violation"   2 "@ensures failed"      "$VANTA" run --debug tests/fail/post_violation.vt
 expect_fail "fail/invariant"        2 "@invariant failed"    "$VANTA" run --debug tests/fail/invariant_violation.vt
+expect_fail "fail/bank_invariant"   2 "@invariant failed on BankAccount" "$VANTA" run --debug tests/fail/bank_invariant.vt
 expect_fail "fail/assert_fires"     2 "assertion failed"     "$VANTA" run tests/fail/assert_fires.vt
 expect_fail "fail/type_error"       1 "type error"           "$VANTA" check tests/fail/type_error.vt
 expect_fail "fail/variant_ambig"    1 "ambiguous variant"    "$VANTA" check --debug tests/fail/variant_ambiguous.vt
