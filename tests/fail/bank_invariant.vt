@@ -1,0 +1,29 @@
+module main;
+
+// expect: exit 2 (under --debug)
+// expect-msg: @invariant failed on BankAccount
+//
+// A "back door" function that bypasses withdraw()'s @requires and
+// writes the balance directly. The struct's @invariant catches the
+// negative balance the moment the field write commits.
+//
+// This is the safety net: even when fn-level contracts are skipped
+// (or simply forgotten on a new function), the struct invariant
+// re-fires on every mutation point.
+
+struct BankAccount {
+    balance: int
+
+    @debug @invariant(balance >= 0)
+}
+
+fn force_set(acc: *BankAccount, v: int) {
+    acc.balance = v;     // no @requires; struct invariant still runs
+}
+
+fn main() -> int {
+    a := alloc(BankAccount);
+    a.balance = 100;
+    force_set(a, 0 - 5);   // boom under --debug
+    return 0;
+}
