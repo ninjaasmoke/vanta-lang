@@ -8,16 +8,9 @@ struct Stack {
     @debug @invariant(size <= capacity)
 }
 
-@debug
-@requires(s != null)
-@requires(s.size < s.capacity)
-@ensures(s.size == old(s.size) + 1)
-fn push(s: *Stack, v: int) {
-    s.data[s.size] = v;
-    s.size += 1;
-}
-
-@release
+@debug @requires(s != null)
+@debug @requires(s.size < s.capacity)
+@debug @ensures(s.size == old(s.size) + 1)
 fn push(s: *Stack, v: int) {
     s.data[s.size] = v;
     s.size += 1;
