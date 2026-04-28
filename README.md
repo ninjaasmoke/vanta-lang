@@ -44,6 +44,15 @@ interpreter. See [IMPL.md](IMPL.md) for the language specification.
   invariants whose gating attribute isn't active, so the interpreter
   never even sees them.
 
+- **Bytes and strings work.** `'A'` is a byte literal, `"hello"`
+  lowers to a fresh mutable `*u8` buffer of the right length, and
+  `s[i]` reads or writes a byte. No null terminator; pass length
+  explicitly.
+
+- **Bitwise + flow control you'd expect.** `& | ^ ~ << >>`,
+  `break` / `continue`, `!p` for nullness, character literals with
+  the usual escapes.
+
 ## Build
 
 ```
@@ -78,6 +87,23 @@ vanta run      <file>     execute main()
 All commands accept `--attr NAME` (repeatable) plus `--debug` /
 `--release` shortcuts.
 
+## Tests
+
+`make test` runs three layers:
+
+```
+tests/cmp/        same algorithm in C and Vanta, side-by-side
+tests/showcase/   Vanta-only programs (variants, contracts, old(), ...)
+tests/fail/       programs that must blow up (each with the expected message)
+```
+
+The cmp suite covers: factorial, gcd, binary_search, quicksort,
+popcount (Kernighan trick), string_reverse, count_vowels, to_upper,
+linked_list, matmul, sieve, edit_distance, RPN calculator, mandelbrot.
+C is the gold standard; we tie or lose on lines, tie on correctness.
+The RPN calculator is the closest Vanta gets to actually winning:
+the stack contract that C puts in a comment is machine-checked here.
+
 ## Layout
 
 ```
@@ -95,15 +121,21 @@ src/
   io.{c,h}       read_file
   main.c         cli
 examples/        small programs
-tests/run.sh     smoke runner
+tests/cmp/       C vs Vanta comparisons
+tests/showcase/  Vanta-only feature demos
+tests/fail/      negative tests (must fail)
+tests/run.sh     test runner
 IMPL.md          spec
 ```
 
 ## Status
 
-Reasonably complete given the spec. Plenty of TODOs in the code -
-struct field memory leaks on scope exit, `alloc_array(T, n)` parses T
-as an identifier and resolves it specially in sema (it should be a
-proper type-arg form), error recovery in the parser is a stub, no
-codegen.
+Reasonably complete given the spec. Has bytes (`u8`), character and
+string literals, bitwise ops, break/continue, struct invariants
+checked on every field write. Plenty of TODOs left:
+- struct field memory leaks on scope exit
+- `alloc(T)` / `alloc_array(T, n)` parse T as an ident, not a real
+  type-arg form
+- parser error recovery is "print and skip to next ;"
+- no codegen, no proper casts, no slices runtime, no generics
 

@@ -66,8 +66,9 @@ Case-sensitive.
 
 ```
 module import fn struct type return
-if else while for match
-true false
+if else while for in match
+true false null
+break continue assert
 ```
 
 ---
@@ -234,6 +235,19 @@ x = 20
 && || !
 ```
 
+`!` on a pointer is the nullness check (equivalent to `p == null`).
+
+---
+
+## 6.6 Bitwise
+
+```
+&  |  ^  ~  <<  >>
+```
+
+Integer operands only. `&` is also address-of in unary position; the
+parser disambiguates by context.
+
 ---
 
 # 7. Control Flow
@@ -274,6 +288,20 @@ match x {
     _ => {}
 }
 ```
+
+---
+
+## 7.5 Break / Continue
+
+```c
+while cond {
+    if skip { continue; }
+    if done { break; }
+}
+```
+
+Both must appear inside a `while` or `for`. Outside a loop is a sema
+error.
 
 ---
 
