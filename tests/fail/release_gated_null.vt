@@ -1,0 +1,24 @@
+module main;
+
+// expect: exit 2 under --release
+// expect-msg: @requires failed in 'deref'
+//
+// inverse-direction test for tests/fail/pre_violation.vt:
+// the @requires here is @release-gated, not @debug-gated. so
+// passing null should:
+//
+//   --release : @requires fires cleanly
+//   --debug   : check is gone, deref of null at runtime
+//
+// either way the program exits non-zero, but with different
+// messages. only the --release path is checked here; the runner
+// pins the message so we know it's the contract that fired.
+
+@release @requires(p != null)
+fn deref(p: *int) -> int {
+    return *p;
+}
+
+fn main() -> int {
+    return deref(null);
+}

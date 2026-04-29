@@ -99,6 +99,8 @@ check_exit "showcase/struct_invariant"   10  "$VANTA" run --debug tests/showcase
 check_exit "showcase/break_continue"     43  "$VANTA" run tests/showcase/break_continue.vt
 check_exit "showcase/bank_account dbg"   57  "$VANTA" run --debug   tests/showcase/bank_account.vt
 check_exit "showcase/bank_account rel"   57  "$VANTA" run --release tests/showcase/bank_account.vt
+check_exit "showcase/release_check dbg"  17  "$VANTA" run --debug   tests/showcase/release_check.vt
+check_exit "showcase/release_check rel"  17  "$VANTA" run --release tests/showcase/release_check.vt
 # variant_dispatch: same exit code in both modes; debug prints, release doesn't.
 check_exit "showcase/variant_dispatch dbg" 30 "$VANTA" run --debug   tests/showcase/variant_dispatch.vt
 check_exit "showcase/variant_dispatch rel" 30 "$VANTA" run --release tests/showcase/variant_dispatch.vt
@@ -128,6 +130,7 @@ expect_fail() {
 
 printf '\n--- tests/fail: programs that must fail ---\n'
 expect_fail "fail/pre_violation"    2 "@requires failed"     "$VANTA" run --debug tests/fail/pre_violation.vt
+expect_fail "fail/release_gated"    2 "@requires failed in 'deref'" "$VANTA" run --release tests/fail/release_gated_null.vt
 expect_fail "fail/post_violation"   2 "@ensures failed"      "$VANTA" run --debug tests/fail/post_violation.vt
 expect_fail "fail/invariant"        2 "@invariant failed"    "$VANTA" run --debug tests/fail/invariant_violation.vt
 expect_fail "fail/bank_invariant"   2 "@invariant failed on BankAccount" "$VANTA" run --debug tests/fail/bank_invariant.vt

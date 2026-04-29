@@ -1,0 +1,46 @@
+module main;
+
+// @release @requires - the often-overlooked symmetric case.
+//
+// @debug @requires drops in production. fine for design contracts
+// (parameters in valid range etc) where you trust the call sites
+// you control.
+//
+// @release @requires drops in development. it's the right tool
+// when the check is CHEAPER than the cost of the bug:
+//
+//   - null-check on a deref: one branch vs a page fault.
+//   - input bounds on data from outside your trust boundary
+//     (network, user, a file): you ALWAYS want this in production.
+//
+// you can have both. checks active in dev only, checks active in
+// prod only, or both -> three different failure modes from the
+// same source.
+
+// always-on contract: this would be `@requires(p != null)` written
+// without a gate, except gateless contracts don't exist; pick the
+// build mode where you most want it active. for trust-boundary
+// checks that's release.
+@release @requires(p != null)
+fn deref(p: *int) -> int {
+    return *p;
+}
+
+// dev-only contract: design invariant for callers in our own code.
+// production trusts that the data shape is correct; release saves
+// the branch.
+@debug @requires(n >= 0)
+fn double_it(n: int) -> int {
+    return n + n;
+}
+
+fn main() -> int {
+    a := alloc(int);
+    *a = 7;
+
+    x := deref(a);            // 7    (release-checked, debug bare)
+    y := double_it(5);        // 10   (debug-checked, release bare)
+
+    free(a);
+    return x + y;             // 17
+}
