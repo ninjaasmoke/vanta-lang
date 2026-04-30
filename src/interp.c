@@ -239,13 +239,6 @@ static Value bin_cmp(Op op, Value a, Value b) {
     }
 }
 
-static const Type *deref_struct_type(Value v) __attribute__((unused));
-static const Type *deref_struct_type(Value v) {
-    if (v.kind == V_STRUCT) return v.st.type;
-    if (v.kind == V_PTR && v.p && v.p->kind == V_STRUCT) return v.p->st.type;
-    return NULL;
-}
-
 static Value *struct_field_ptr(Value *target, const Type *t, const char *name) {
     if (target->kind == V_PTR) target = target->p;
     if (!target || target->kind != V_STRUCT) return NULL;
