@@ -15,14 +15,14 @@ struct Stack {
 @requires(s.size < s.capacity)
 @ensures(s.size == old(s.size) + 1)
 fn push(s: *Stack, v: int) {
-    s.data[s.size] = v
-    s.size += 1
+    s.data[s.size] = v;
+    s.size += 1;
 }
 
 @release
 fn push(s: *Stack, v: int) {
-    s.data[s.size] = v
-    s.size += 1
+    s.data[s.size] = v;
+    s.size += 1;
 }
 
 fn main() -> int {
@@ -30,10 +30,10 @@ fn main() -> int {
         data = alloc_array(int, 2),
         size = 0,
         capacity = 2
-    }
-    push(&s, 1)
-    push(&s, 2)
-    push(&s, 3)        // should trip @requires(s.size < s.capacity)
-    free(s.data)
-    return 0
+    };
+    push(&s, 1);
+    push(&s, 2);
+    push(&s, 3);        // should trip @requires(s.size < s.capacity)
+    free(s.data);
+    return 0;
 }
