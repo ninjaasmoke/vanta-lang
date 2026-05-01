@@ -4,13 +4,13 @@ module main
 
 fn gcd(a: int, b: int) -> int {
     while b != 0 {
-        t := b
-        b = a % b
-        a = t
+        t := b;
+        b = a % b;
+        a = t;
     }
-    return a
+    return a;
 }
 
 fn main() -> int {
-    return gcd(48, 18)
+    return gcd(48, 18);
 }
