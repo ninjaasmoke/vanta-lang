@@ -389,7 +389,7 @@ static Stmt *parse_let(P *p) {
         expect(p, TK_WALRUS, "':=' or ':'");
         s->let_.init = parse_expr(p);
     }
-    match(p, TK_SEMI);
+    expect(p, TK_SEMI, "';'");
     return s;
 }
 
@@ -455,9 +455,9 @@ static Stmt *parse_match(P *p) {
 static Stmt *parse_return(P *p) {
     Loc loc = loc_of(advance(p));
     Stmt *s = ast_stmt(p->arena, ST_RETURN, loc);
-    if (!check(p, TK_RBRACE) && !check(p, TK_SEMI) && !check(p, TK_EOF))
+    if (!check(p, TK_SEMI) && !check(p, TK_EOF))
         s->expr = parse_expr(p);
-    match(p, TK_SEMI);
+    expect(p, TK_SEMI, "';'");
     return s;
 }
 
@@ -467,7 +467,7 @@ static Stmt *parse_assert(P *p) {
     expect(p, TK_LPAREN, "'('");
     s->expr = parse_expr(p);
     expect(p, TK_RPAREN, "')'");
-    match(p, TK_SEMI);
+    expect(p, TK_SEMI, "';'");
     return s;
 }
 
@@ -491,7 +491,7 @@ static Stmt *parse_stmt(P *p) {
     Loc loc = loc_of(peek(p));
     Stmt *s = ast_stmt(p->arena, ST_EXPR, loc);
     s->expr = parse_expr(p);
-    match(p, TK_SEMI);
+    expect(p, TK_SEMI, "';'");
     return s;
 }
 
