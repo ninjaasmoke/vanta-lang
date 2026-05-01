@@ -639,7 +639,10 @@ static Value call_fn(Interp *I, FnVariant *v, Value *args, size_t n, Loc call_lo
     Value ret = V_void();
     exec_block(I, f, &d->fn.body, &ret);
 
-    /* @ensures */
+    /* @ensures — make `result` visible inside the postcondition. */
+    if (lf && lf->ensures.len > 0) {
+        bind(f, "result", ret);
+    }
     if (lf) for (size_t i = 0; i < lf->ensures.len; i++) {
         Value c = eval(I, f, lf->ensures.data[i].cond);
         if (!truthy(c)) {
