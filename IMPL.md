@@ -102,6 +102,20 @@ import math
 
 ---
 
+## 4.3 Statements
+
+Statements are terminated by `;`. There is no significant whitespace.
+Block-shaped constructs (`if`, `while`, `for`, `match`, function bodies)
+are delimited by `{` and `}` and do not need a trailing `;`.
+
+```c
+x := 10;
+y := add(x, 1);
+return y;
+```
+
+---
+
 # 5. Types
 
 ## 5.1 Primitive Types
@@ -579,14 +593,14 @@ struct Stack {
 @requires(s.size < s.capacity)
 @ensures(s.size == old(s.size) + 1)
 fn push(s: *Stack, v: int) {
-    s.data[s.size] = v
-    s.size += 1
+    s.data[s.size] = v;
+    s.size += 1;
 }
 
 @release
 fn push(s: *Stack, v: int) {
-    s.data[s.size] = v
-    s.size += 1
+    s.data[s.size] = v;
+    s.size += 1;
 }
 
 fn main() -> int {
@@ -594,13 +608,13 @@ fn main() -> int {
         data = alloc_array(int, 10),
         size = 0,
         capacity = 10
-    }
+    };
 
-    push(&s, 42)
+    push(&s, 42);
 
-    free(s.data)
+    free(s.data);
 
-    return 0
+    return 0;
 }
 ```
 
