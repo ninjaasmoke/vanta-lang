@@ -17,6 +17,9 @@ typedef struct {
     Arena          *arena;
     const char     *filename;
     int             had_error;
+    int             no_struct_lit; /* >0: don't treat `Name {` as a struct lit.
+                                      raised inside `if/while/for` conditions
+                                      so the trailing `{` of the body wins. */
 } P;
 
 /* ----- diagnostics & token nav ----- */
@@ -234,8 +237,10 @@ static Expr *parse_primary(P *p) {
             return e;
         }
         /* struct literal: Name { f = v, ... } - only when next is { and it
-         * smells like a struct literal. We accept Name { ident = ... }. */
-        if (check(p, TK_LBRACE)
+         * smells like a struct literal. We accept Name { ident = ... }.
+         * Suppressed inside if/while/for conditions so `if x { ... }` works. */
+        if (!p->no_struct_lit
+            && check(p, TK_LBRACE)
             && peek_n(p, 1)->kind == TK_IDENT
             && peek_n(p, 2)->kind == TK_ASSIGN)
         {
@@ -259,7 +264,10 @@ static Expr *parse_primary(P *p) {
     }
     case TK_LPAREN: {
         advance(p);
+        int saved = p->no_struct_lit;
+        p->no_struct_lit = 0;          /* parens reset the suppression */
         Expr *e = parse_expr(p);
+        p->no_struct_lit = saved;
         expect(p, TK_RPAREN, "')'");
         return e;
     }
@@ -396,7 +404,9 @@ static Stmt *parse_let(P *p) {
 static Stmt *parse_if(P *p) {
     Loc loc = loc_of(advance(p)); /* 'if' */
     Stmt *s = ast_stmt(p->arena, ST_IF, loc);
+    p->no_struct_lit++;
     s->if_.cond = parse_expr(p);
+    p->no_struct_lit--;
     parse_block(p, &s->if_.then_b);
     if (match(p, TK_ELSE)) {
         if (check(p, TK_IF)) {
@@ -413,7 +423,9 @@ static Stmt *parse_if(P *p) {
 static Stmt *parse_while(P *p) {
     Loc loc = loc_of(advance(p));
     Stmt *s = ast_stmt(p->arena, ST_WHILE, loc);
+    p->no_struct_lit++;
     s->while_.cond = parse_expr(p);
+    p->no_struct_lit--;
     parse_block(p, &s->while_.body);
     return s;
 }
@@ -424,7 +436,9 @@ static Stmt *parse_for(P *p) {
     expect(p, TK_IN, "'in'");
     Stmt *s = ast_stmt(p->arena, ST_FOR, loc);
     s->for_.var = dup_ident(p, v);
+    p->no_struct_lit++;
     s->for_.range = parse_expr(p);
+    p->no_struct_lit--;
     parse_block(p, &s->for_.body);
     return s;
 }
@@ -432,7 +446,9 @@ static Stmt *parse_for(P *p) {
 static Stmt *parse_match(P *p) {
     Loc loc = loc_of(advance(p));
     Stmt *s = ast_stmt(p->arena, ST_MATCH, loc);
+    p->no_struct_lit++;
     s->match_.scrutinee = parse_expr(p);
+    p->no_struct_lit--;
     expect(p, TK_LBRACE, "'{'");
     while (!check(p, TK_RBRACE) && !check(p, TK_EOF)) {
         MatchArm arm = {0};
@@ -605,7 +621,7 @@ static Decl *parse_decl(P *p, AttrVec attrs) {
 /* ----- top level ----- */
 
 Module *parse_module(Arena *arena, const TokenVec *tokens, const char *filename) {
-    P p = { tokens, 0, arena, filename, 0 };
+    P p = { tokens, 0, arena, filename, 0, 0 };
     Module *m = (Module *)arena_alloc_zero(arena, sizeof(Module));
 
     if (match(&p, TK_MODULE)) {
