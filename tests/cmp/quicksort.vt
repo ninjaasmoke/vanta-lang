@@ -1,0 +1,67 @@
+module main;
+
+// In-place quicksort (Lomuto partition).
+//
+// Same data as quicksort.c. Sorts {3,1,4,1,5,9,2,6,5,3} ascending.
+// exit code = a[5] after sort = 4.
+//
+// What Vanta adds:
+//
+//   * @requires on partition pins down the indices we expect — the
+//     compiler will not let you call partition on an empty range
+//     under --debug.
+//
+//   * @ensures(result >= lo && result <= hi) catches a whole class
+//     of off-by-one bugs in the partition itself.
+//
+// Verdict: very close on lines, Vanta wins on documented contracts.
+// C wins on raw speed (we're a tree-walking interpreter, not a fair
+// fight).
+
+@requires(lo <= hi)
+@ensures(result >= lo && result <= hi)
+fn partition(a: *int, lo: int, hi: int) -> int {
+    pivot := a[hi];
+    i := lo - 1;
+    j := lo;
+    while j < hi {
+        if a[j] <= pivot {
+            i = i + 1;
+            t := a[i];
+            a[i] = a[j];
+            a[j] = t;
+        }
+        j = j + 1;
+    }
+    t := a[i + 1];
+    a[i + 1] = a[hi];
+    a[hi] = t;
+    return i + 1;
+}
+
+fn qsort(a: *int, lo: int, hi: int) {
+    if lo < hi {
+        p := partition(a, lo, hi);
+        qsort(a, lo, p - 1);
+        qsort(a, p + 1, hi);
+    }
+}
+
+fn main() -> int {
+    a := alloc_array(int, 10);
+    a[0] = 3;
+    a[1] = 1;
+    a[2] = 4;
+    a[3] = 1;
+    a[4] = 5;
+    a[5] = 9;
+    a[6] = 2;
+    a[7] = 6;
+    a[8] = 5;
+    a[9] = 3;
+
+    qsort(a, 0, 9);
+    r := a[5];
+    free(a);
+    return r;     // 4
+}
