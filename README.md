@@ -1,4 +1,4 @@
-# vanta
+# (in)V(ari)ANTa -- vanta
 
 A small statically-typed systems language with an attribute-driven
 compilation model.
