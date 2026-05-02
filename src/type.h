@@ -18,6 +18,7 @@ typedef enum {
     TY_VOID, TY_BOOL,
     TY_INT,     /* default int (==i64 on this impl) */
     TY_I32, TY_I64, TY_U32, TY_U64,
+    TY_U8,      /* one byte; what 'c' character literals produce */
     TY_F32, TY_F64,
     TY_PTR,
     TY_ARRAY,

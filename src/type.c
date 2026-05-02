@@ -5,7 +5,7 @@ int type_is_integer(const Type *t) {
     if (!t) return 0;
     switch (t->kind) {
     case TY_INT: case TY_I32: case TY_I64:
-    case TY_U32: case TY_U64: return 1;
+    case TY_U32: case TY_U64: case TY_U8: return 1;
     default: return 0;
     }
 }
@@ -45,6 +45,7 @@ const char *type_name(const Type *t) {
     case TY_I64:  return "i64";
     case TY_U32:  return "u32";
     case TY_U64:  return "u64";
+    case TY_U8:   return "u8";
     case TY_F32:  return "f32";
     case TY_F64:  return "f64";
     case TY_PTR:    return "*T";

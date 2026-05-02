@@ -88,7 +88,7 @@ struct Sema {
 
     /* primitive types interned once */
     Type *t_void, *t_bool;
-    Type *t_int, *t_i32, *t_i64, *t_u32, *t_u64;
+    Type *t_int, *t_i32, *t_i64, *t_u32, *t_u64, *t_u8;
     Type *t_f32, *t_f64;
     Type *t_error;
 
@@ -139,6 +139,7 @@ static void init_prims(Sema *S) {
     S->t_i64  = new_prim(a, TY_I64,  8);
     S->t_u32  = new_prim(a, TY_U32,  4);
     S->t_u64  = new_prim(a, TY_U64,  8);
+    S->t_u8   = new_prim(a, TY_U8,   1);
     S->t_f32  = new_prim(a, TY_F32,  4);
     S->t_f64  = new_prim(a, TY_F64,  8);
     S->t_error= new_prim(a, TY_ERROR, 0);
@@ -152,6 +153,7 @@ static Type *prim_by_name(Sema *S, const char *n) {
     if (strcmp(n, "i64")  == 0) return S->t_i64;
     if (strcmp(n, "u32")  == 0) return S->t_u32;
     if (strcmp(n, "u64")  == 0) return S->t_u64;
+    if (strcmp(n, "u8")   == 0) return S->t_u8;
     if (strcmp(n, "f32")  == 0) return S->t_f32;
     if (strcmp(n, "f64")  == 0) return S->t_f64;
     return NULL;
@@ -627,9 +629,10 @@ static Type *check_expr(Sema *S, Expr *e) {
     case EX_FLOAT:  e->resolved = S->t_f64;  return S->t_f64;
     case EX_BOOL:   e->resolved = S->t_bool; return S->t_bool;
     case EX_STRING: {
-        /* string is *u8 for now (no string type yet) */
+        /* string literal: *u8 to a fresh byte buffer (interp builds it).
+         * length is implicit; the user passes it explicitly when needed. */
         Type *p = (Type *)arena_alloc_zero(S->arena, sizeof(Type));
-        p->kind = TY_PTR; p->elem = S->t_u32; p->size = 8;
+        p->kind = TY_PTR; p->elem = S->t_u8; p->size = 8;
         e->resolved = p; return p;
     }
     case EX_IDENT: {

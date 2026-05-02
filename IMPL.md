@@ -124,6 +124,7 @@ return y;
 int
 i32 i64
 u32 u64
+u8        // one byte; what 'c' character literals produce
 f32 f64
 bool
 void
