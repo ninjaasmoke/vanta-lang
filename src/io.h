@@ -1,5 +1,5 @@
 /*
- * io.h — file I/O helpers (just one for now: read a whole file).
+ * io.h - file I/O helpers (just one for now: read a whole file).
  */
 
 #ifndef VANTA_IO_H

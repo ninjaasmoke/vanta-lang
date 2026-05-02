@@ -1,5 +1,5 @@
 /*
- * lower.h — flatten attributes into runtime-checked invariants.
+ * lower.h - flatten attributes into runtime-checked invariants.
  *
  * Per the spec, `@requires` / `@ensures` / `@invariant` are gated by
  * the attribute list they appear in. After lowering, each FnVariant
@@ -8,7 +8,7 @@
  * after mutations or at the function boundary.
  *
  * This pass runs after sema. If gating attrs are not active, the
- * invariant is dropped here — sema_program is the only place those
+ * invariant is dropped here - sema_program is the only place those
  * lists exist.
  */
 

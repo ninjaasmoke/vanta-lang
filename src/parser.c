@@ -233,7 +233,7 @@ static Expr *parse_primary(P *p) {
             e->old_.inner = inner;
             return e;
         }
-        /* struct literal: Name { f = v, ... } — only when next is { and it
+        /* struct literal: Name { f = v, ... } - only when next is { and it
          * smells like a struct literal. We accept Name { ident = ... }. */
         if (check(p, TK_LBRACE)
             && peek_n(p, 1)->kind == TK_IDENT
@@ -372,7 +372,7 @@ static int starts_let(P *p) {
     TokenKind k1 = peek_n(p, 1)->kind;
     if (k1 == TK_WALRUS) return 1;
     /* ident : type = ... → also a let. distinguish from ident : type as an
-     * arg list — but we never parse top-level args as statements, so safe. */
+     * arg list - but we never parse top-level args as statements, so safe. */
     if (k1 == TK_COLON) return 1;
     return 0;
 }
@@ -400,7 +400,7 @@ static Stmt *parse_if(P *p) {
     parse_block(p, &s->if_.then_b);
     if (match(p, TK_ELSE)) {
         if (check(p, TK_IF)) {
-            /* else if — wrap as a single-stmt block */
+            /* else if - wrap as a single-stmt block */
             Stmt *inner = parse_if(p);
             vec_push(&s->if_.else_b, inner);
         } else {

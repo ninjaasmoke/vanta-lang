@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 /*
- * Tiny hand-written lexer. No regex, no tables — just a switch.
+ * Tiny hand-written lexer. No regex, no tables - just a switch.
  * Tokens point back into the source buffer, so we never copy strings
  * here; the parser will arena-dup any identifier it actually keeps.
  */

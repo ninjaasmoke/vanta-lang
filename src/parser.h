@@ -1,5 +1,5 @@
 /*
- * parser.h — turns a TokenVec into a Module.
+ * parser.h - turns a TokenVec into a Module.
  */
 
 #ifndef VANTA_PARSER_H

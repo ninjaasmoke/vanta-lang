@@ -101,7 +101,7 @@ static Frame *frame_new(Frame *parent) {
 
 static void frame_free(Frame *f) {
     /* note: V_STRUCT stores malloc'd fields. own them properly with a
-     * deeper owner-tracking scheme later. for now we leak — it's fine for
+     * deeper owner-tracking scheme later. for now we leak - it's fine for
      * the kinds of programs we run. fixme. */
     free(f->bindings);
     free(f);
@@ -268,7 +268,7 @@ static LRef eval_lref(Interp *I, Frame *f, Expr *e) {
                     die(I, e->loc, "out of bounds: %lld / %zu", i, base.p->arr.len);
                 r.is_lvalue = 1; r.slot = &base.p->arr.items[i]; return r;
             }
-            /* pointer into a Value array — treat as offset */
+            /* pointer into a Value array - treat as offset */
             r.is_lvalue = 1; r.slot = &base.p[i]; return r;
         }
         die(I, e->loc, "indexing non-pointer/array");
@@ -328,7 +328,7 @@ static Value eval_assign(Interp *I, Frame *f, Expr *e) {
 }
 
 /* find an FnVariant by name when no resolved_fn is attached (e.g.,
- * an invariant references a fn — rare). */
+ * an invariant references a fn - rare). */
 static FnVariant *lookup_active_variant(Interp *I, const char *name) {
     for (size_t i = 0; i < I->L->prog->fn_count; i++) {
         FnVariantSet vs = I->L->prog->fns[i];
@@ -368,7 +368,7 @@ static Value eval_call(Interp *I, Frame *f, Expr *e) {
         }
         if (strcmp(n, "free") == 0) {
             for (size_t i = 0; i < e->call.args.len; i++) eval(I, f, e->call.args.data[i]);
-            /* leak — see fixme */
+            /* leak - see fixme */
             return V_void();
         }
         if (strcmp(n, "print") == 0 || strcmp(n, "println") == 0) {

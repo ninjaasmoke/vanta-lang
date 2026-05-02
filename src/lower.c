@@ -51,7 +51,7 @@ LoweredProgram *lower(Arena *a, SemaProgram *prog) {
             Decl *d = vs.items[j].decl;
             /* walk attrs left-to-right; track gate prefix (non-invariant attrs).
              * the variant itself is gated by those, so it's already redundant
-             * for fn invariants — but we still respect explicit gating in
+             * for fn invariants - but we still respect explicit gating in
              * case the user nests differently. */
             const char *gates[16]; size_t gn = 0;
             for (size_t k = 0; k < d->attrs.len; k++) {

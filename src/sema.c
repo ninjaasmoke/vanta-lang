@@ -458,7 +458,7 @@ static Type *check_unary(Sema *S, Expr *e) {
 }
 
 static Type *check_call(Sema *S, Expr *e) {
-    /* The callee must be an identifier — Vanta has no first-class fns yet. */
+    /* The callee must be an identifier - Vanta has no first-class fns yet. */
     if (e->call.callee->kind != EX_IDENT) {
         check_expr(S, e->call.callee);
         sema_err(S, e->loc, "indirect calls not supported");
@@ -531,7 +531,7 @@ static Type *check_call(Sema *S, Expr *e) {
     if (!v)      { sema_err(S, e->loc, "no variant of '%s' matches active attributes", name);
                    e->resolved = S->t_error; return S->t_error; }
 
-    /* attach the picked variant — interp uses this for direct dispatch */
+    /* attach the picked variant - interp uses this for direct dispatch */
     e->resolved_fn = v;
 
     if (e->call.args.len != v->param_count) {
@@ -792,7 +792,7 @@ SemaProgram *sema_analyze_with_path(Arena *arena, Module *m, const AttrSet *acti
     collect_top_level(&S);
 
     /* type-check every variant body. we type-check ALL variants, not just
-     * the selected ones — so the user gets errors in @release code even
+     * the selected ones - so the user gets errors in @release code even
      * during a @debug build. */
     for (size_t i = 0; i < S.fns.len; i++) {
         VariantBucket *b = &S.fns.data[i];

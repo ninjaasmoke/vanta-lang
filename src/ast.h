@@ -1,11 +1,11 @@
 /*
- * ast.h — abstract syntax tree.
+ * ast.h - abstract syntax tree.
  *
  * One big tagged-union per category (Expr, Stmt, Decl). Allocated in
  * an Arena that the caller passes in. Nodes carry a source location
  * (line/col) for diagnostics.
  *
- * Types are represented by AstType — a small recursive descriptor
+ * Types are represented by AstType - a small recursive descriptor
  * (primitive / pointer / array / slice / named). Sema turns this into
  * a resolved Type.
  */
@@ -194,7 +194,7 @@ struct Module {
     DeclVec decls;
 };
 
-/* helpers — all allocate from arena */
+/* helpers - all allocate from arena */
 Expr   *ast_expr(Arena *a, ExprKind k, Loc loc);
 Stmt   *ast_stmt(Arena *a, StmtKind k, Loc loc);
 Decl   *ast_decl(Arena *a, DeclKind k, Loc loc);

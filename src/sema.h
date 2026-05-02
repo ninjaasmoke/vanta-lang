@@ -1,5 +1,5 @@
 /*
- * sema.h — semantic analysis (name + type resolution).
+ * sema.h - semantic analysis (name + type resolution).
  *
  * Walks the AST, resolves identifiers, type-checks expressions/stmts,
  * and decorates function variants with their attribute set so the
@@ -24,7 +24,7 @@ typedef struct {
     size_t       count;
 } AttrSet;
 
-/* a function variant — one Decl + its required attribute set */
+/* a function variant - one Decl + its required attribute set */
 typedef struct {
     Decl    *decl;
     AttrSet  required;       /* attrs that must be active for this variant */

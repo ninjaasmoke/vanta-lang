@@ -3,7 +3,7 @@
 A small statically-typed systems language with an attribute-driven
 compilation model.
 
-This is a hobby compiler. There is no codegen — there's a tree-walking
+This is a hobby compiler. There is no codegen - there's a tree-walking
 interpreter. See [IMPL.md](IMPL.md) for the language specification.
 
 ## What's interesting about it
@@ -31,7 +31,7 @@ interpreter. See [IMPL.md](IMPL.md) for the language specification.
   selected at sema time, not at runtime.
 
 - Invariants (`@requires` / `@ensures` / `@invariant`) are zero-cost
-  when their gating attribute isn't active — the lowering pass drops
+  when their gating attribute isn't active - the lowering pass drops
   them before the interpreter ever sees them.
 
 - `old(expr)` is captured on entry to a function so postconditions
@@ -94,7 +94,7 @@ IMPL.md          spec
 
 ## Status
 
-Reasonably complete given the spec. Plenty of TODOs in the code —
+Reasonably complete given the spec. Plenty of TODOs in the code -
 struct field memory leaks on scope exit, `alloc_array(T, n)` parses T
 as an identifier and resolves it specially in sema (it should be a
 proper type-arg form), error recovery in the parser is a stub, no

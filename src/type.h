@@ -1,5 +1,5 @@
 /*
- * type.h — resolved types for the type checker / interpreter.
+ * type.h - resolved types for the type checker / interpreter.
  *
  * AST has AstType (syntactic). Sema produces Type (semantic), which
  * has identity (pointers compare). Each Type is interned in a Sema

@@ -1,5 +1,5 @@
 /*
- * token.h — token kinds + the Token struct.
+ * token.h - token kinds + the Token struct.
  */
 
 #ifndef VANTA_TOKEN_H

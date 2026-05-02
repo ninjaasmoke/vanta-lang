@@ -1,5 +1,5 @@
 /*
- * lexer.h — turns a source buffer into a stream of tokens.
+ * lexer.h - turns a source buffer into a stream of tokens.
  *
  * The lexer does not own the source. It expects a NUL-terminated
  * buffer that lives at least as long as the produced tokens (since

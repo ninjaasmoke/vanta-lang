@@ -1,5 +1,5 @@
 /*
- * interp.h — tree-walking interpreter for vanta.
+ * interp.h - tree-walking interpreter for vanta.
  *
  * Runs a sema'd + lowered program. Honors active invariants at call
  * boundaries. Aborts the program (with a message) on assertion or

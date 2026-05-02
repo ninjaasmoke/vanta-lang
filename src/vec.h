@@ -1,5 +1,5 @@
 /*
- * vec.h — generic dynamic array via macro.
+ * vec.h - generic dynamic array via macro.
  *
  * Usage:
  *   typedef VEC(int) IntVec;

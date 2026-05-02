@@ -1,5 +1,5 @@
 /*
- * arena.h — bump allocator.
+ * arena.h - bump allocator.
  *
  * Compiler passes allocate a lot of small nodes. An arena is the
  * easiest way to manage their lifetime: free everything at the end.

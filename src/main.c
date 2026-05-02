@@ -1,5 +1,5 @@
 /*
- * vanta — entry point.
+ * vanta - entry point.
  */
 
 #include <stdio.h>
@@ -80,7 +80,7 @@ static int cmd_parse(int argc, char **argv) {
     return rc;
 }
 
-/* parse "--attr NAME --attr NAME2 <file>" — accumulate attrs and return file. */
+/* parse "--attr NAME --attr NAME2 <file>" - accumulate attrs and return file. */
 typedef VEC(const char *) StrVec;
 
 static const char *parse_attr_args(int argc, char **argv, StrVec *out) {
