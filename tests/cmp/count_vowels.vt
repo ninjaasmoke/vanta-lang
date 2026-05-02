@@ -1,0 +1,32 @@
+module main;
+
+// Count vowels in a string. exit code = vowel count.
+//
+// Vanta version: comparable line count, slightly more typing for
+// the loop condition (no null-termination, so length is explicit).
+//
+// Where C wins: the for-loop driving on `*s` is 5 chars and reads
+// like punctuation. We have to spell out `i < n`.
+//
+// Where Vanta wins (a little): @requires + @ensures pin invariants
+// the compiler can check. The vowel count must be in 0..n.
+
+@requires(n >= 0)
+@ensures(result >= 0 && result <= n)
+fn count_vowels(s: *u8, n: int) -> int {
+    count := 0;
+    i := 0;
+    while i < n {
+        c := s[i];
+        if c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' {
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+    return count;
+}
+
+fn main() -> int {
+    s := "the quick brown fox jumps over the lazy dog";
+    return count_vowels(s, 43);
+}
