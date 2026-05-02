@@ -19,14 +19,14 @@ check() {
     fi
 }
 
-check "hello"             5  "$VANTA" run examples/hello.vt
-check "fib"               55 "$VANTA" run examples/fib.vt
-check "gcd"               6  "$VANTA" run examples/gcd.vt
-check "sum"               55 "$VANTA" run examples/sum.vt
-check "stack debug"       0  "$VANTA" run --attr debug   examples/stack.vt
-check "stack release"     0  "$VANTA" run --attr release examples/stack.vt
-check "stack overflow dbg" 2 "$VANTA" run --attr debug   examples/stack_overflow.vt
-check "check hello"       0  "$VANTA" check examples/hello.vt
-check "check stack debug" 0  "$VANTA" check --attr debug examples/stack.vt
+check "hello"             5  "$VANTA" run examples/hello.vanta
+check "fib"               55 "$VANTA" run examples/fib.vanta
+check "gcd"               6  "$VANTA" run examples/gcd.vanta
+check "sum"               55 "$VANTA" run examples/sum.vanta
+check "stack debug"       0  "$VANTA" run --attr debug   examples/stack.vanta
+check "stack release"     0  "$VANTA" run --attr release examples/stack.vanta
+check "stack overflow dbg" 2 "$VANTA" run --attr debug   examples/stack_overflow.vanta
+check "check hello"       0  "$VANTA" check examples/hello.vanta
+check "check stack debug" 0  "$VANTA" check --attr debug examples/stack.vanta
 
 exit $fail
