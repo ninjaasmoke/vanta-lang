@@ -22,8 +22,7 @@ typedef enum {
     V_BOOL,
     V_PTR,        /* points into the interp heap (Value*) */
     V_STRUCT,     /* fields stored inline */
-    V_ARRAY,      /* contiguous Values + len, used by alloc_array */
-    V_STRING
+    V_ARRAY       /* contiguous Values + len, used by alloc_array and string lits */
 } ValueKind;
 
 struct Value {
@@ -42,7 +41,6 @@ struct Value {
             size_t len;
             const Type *elem;
         } arr;
-        const char *s;
     };
 };
 
@@ -51,7 +49,6 @@ static Value V_int(long long x)       { Value v = {0}; v.kind = V_INT; v.i = x; 
 static Value V_float(double x)        { Value v = {0}; v.kind = V_FLOAT; v.f = x; return v; }
 static Value V_bool(int x)            { Value v = {0}; v.kind = V_BOOL; v.b = !!x; return v; }
 static Value V_ptr(Value *p)          { Value v = {0}; v.kind = V_PTR; v.p = p; return v; }
-static Value V_string(const char *s)  { Value v = {0}; v.kind = V_STRING; v.s = s; return v; }
 
 /* zero/default value for a given type */
 static Value default_value(const Type *t) {
@@ -226,7 +223,6 @@ static int values_equal(Value a, Value b) {
     case V_BOOL:  return a.b == b.b;
     case V_PTR:   return a.p == b.p;
     case V_VOID:  return 1;
-    case V_STRING: return strcmp(a.s, b.s) == 0;
     default:      return 0;
     }
 }
@@ -435,7 +431,6 @@ static Value eval_call(Interp *I, Frame *f, Expr *e) {
                 case V_INT:    printf("%lld", v.i); break;
                 case V_FLOAT:  printf("%g", v.f); break;
                 case V_BOOL:   fputs(v.b ? "true" : "false", stdout); break;
-                case V_STRING: fputs(v.s, stdout); break;
                 case V_PTR:
                     /* *u8 buffer? print as bytes. otherwise dump the pointer. */
                     if (v.p && v.p->kind == V_ARRAY) {
