@@ -23,7 +23,11 @@ int type_equals(const Type *a, const Type *b) {
     if (a->kind == TY_ERROR || b->kind == TY_ERROR) return 1;
     if (a->kind != b->kind) return 0;
     switch (a->kind) {
-    case TY_PTR:   return type_equals(a->elem, b->elem);
+    case TY_PTR:
+        /* *void on either side is the null literal — compatible with any *T */
+        if (a->elem && a->elem->kind == TY_VOID) return 1;
+        if (b->elem && b->elem->kind == TY_VOID) return 1;
+        return type_equals(a->elem, b->elem);
     case TY_SLICE: return type_equals(a->elem, b->elem);
     case TY_ARRAY: return a->array_len == b->array_len && type_equals(a->elem, b->elem);
     case TY_STRUCT: return a == b;  /* nominal */
