@@ -1,0 +1,41 @@
+module main;
+
+// Reverse a 'string' in place.
+//
+// THIS IS WHERE C IS THE GOLD STANDARD AGAIN.
+//
+// Vanta has no `char` type, no string mutation, no `strlen`. The
+// `string` literal exists but it's read-only and basically useless
+// without bytes-as-integers and a real heap. So we fake the whole
+// thing with an int array holding ASCII codes and pretend.
+//
+// In C this is a 4-line function. Here it's a parade of ceremony.
+//
+// Returns the ASCII value of the new first char ('o' = 111) so the
+// runner can compare exit codes.
+
+@requires(n >= 0)
+fn reverse(s: *int, n: int) {
+    i := 0;
+    while i < n / 2 {
+        t := s[i];
+        s[i] = s[n - 1 - i];
+        s[n - 1 - i] = t;
+        i = i + 1;
+    }
+}
+
+fn main() -> int {
+    s := alloc_array(int, 5);
+    s[0] = 104;     // 'h'
+    s[1] = 101;     // 'e'
+    s[2] = 108;     // 'l'
+    s[3] = 108;     // 'l'
+    s[4] = 111;     // 'o'
+
+    reverse(s, 5);
+
+    r := s[0];      // expect 'o' = 111
+    free(s);
+    return r;
+}
