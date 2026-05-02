@@ -1,0 +1,17 @@
+module main;
+
+// expect: exit 2 (under --debug)
+// expect-msg: @ensures failed in 'broken_abs'
+//
+// A buggy abs: returns x unconditionally. The @ensures(result >= 0)
+// catches the bug at runtime under --debug.
+
+@debug
+@ensures(result >= 0)
+fn broken_abs(x: int) -> int {
+    return x;          // wrong! should flip sign for negatives
+}
+
+fn main() -> int {
+    return broken_abs(0 - 7);
+}

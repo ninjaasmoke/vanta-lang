@@ -1,0 +1,21 @@
+module main;
+
+// expect: exit 2 (under --debug)
+// expect-msg: @requires failed in 'sqrt_int'
+//
+// Demonstrates @requires firing on a precondition violation.
+
+@debug
+@requires(x >= 0)
+fn sqrt_int(x: int) -> int {
+    // tiny iterative sqrt — only correct for x >= 0
+    r := 0;
+    while (r + 1) * (r + 1) <= x {
+        r = r + 1;
+    }
+    return r;
+}
+
+fn main() -> int {
+    return sqrt_int(0 - 4);   // < 0, must trip @requires
+}

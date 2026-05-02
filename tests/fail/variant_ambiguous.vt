@@ -1,0 +1,17 @@
+module main;
+
+// expect: exit 1 under --debug
+// expect-msg: ambiguous variant
+//
+// Two @debug variants of the same fn → tie at variant selection
+// when the @debug attribute is active.
+
+@debug
+fn pick() -> int { return 1; }
+
+@debug
+fn pick() -> int { return 2; }
+
+fn main() -> int {
+    return pick();
+}

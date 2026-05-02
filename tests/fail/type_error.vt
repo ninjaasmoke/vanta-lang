@@ -1,0 +1,13 @@
+module main;
+
+// expect: exit 1 (sema error, never runs)
+// expect-msg: type error: arithmetic type mismatch
+//
+// Adding a bool and an int is rejected at type-check time.
+
+fn main() -> int {
+    x := 1;
+    y := true;
+    z := x + y;       // bool + int — sema rejects
+    return z;
+}

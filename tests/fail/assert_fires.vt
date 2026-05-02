@@ -1,0 +1,13 @@
+module main;
+
+// expect: exit 2
+// expect-msg: assertion failed
+//
+// `assert` is always evaluated (it's not gated by an attribute).
+
+fn main() -> int {
+    x := 5;
+    assert(x == 5);     // passes
+    assert(x == 6);     // fails
+    return 0;
+}
