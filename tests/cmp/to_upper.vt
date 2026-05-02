@@ -1,0 +1,33 @@
+module main;
+
+// In-place uppercase ASCII. exit code = 'H' = 72.
+//
+// Both languages do this in essentially the same way. The arithmetic
+// `s[i] - 'a' + 'A'` is identical character-for-character. Vanta's
+// `@ensures(result == 0)` could pin `to_upper` doesn't accidentally
+// return something — but it's a void fn, so we'll pin a different
+// invariant on a helper.
+
+@requires(c >= 0 && c <= 255)
+@ensures(result >= 0 && result <= 255)
+fn upper_byte(c: u8) -> u8 {
+    if c >= 'a' && c <= 'z' {
+        return c - 'a' + 'A';
+    }
+    return c;
+}
+
+@requires(n >= 0)
+fn to_upper(s: *u8, n: int) {
+    i := 0;
+    while i < n {
+        s[i] = upper_byte(s[i]);
+        i = i + 1;
+    }
+}
+
+fn main() -> int {
+    s := "hello world";
+    to_upper(s, 11);
+    return s[0];           // 'H' = 72
+}
