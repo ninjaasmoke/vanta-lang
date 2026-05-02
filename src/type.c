@@ -21,6 +21,10 @@ int type_equals(const Type *a, const Type *b) {
     if (!a || !b) return 0;
     /* TY_ERROR is the wildcard: equal to anything to suppress cascade */
     if (a->kind == TY_ERROR || b->kind == TY_ERROR) return 1;
+    /* all integer kinds interconvert. with no explicit cast syntax this is
+     * the practical thing: 'a' (u8) and `n` (int) compare/assign cleanly.
+     * yes, it's loose. fixme when we grow casts. */
+    if (type_is_integer(a) && type_is_integer(b)) return 1;
     if (a->kind != b->kind) return 0;
     switch (a->kind) {
     case TY_PTR:

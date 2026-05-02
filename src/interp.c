@@ -389,7 +389,17 @@ static Value eval_call(Interp *I, Frame *f, Expr *e) {
                 case V_FLOAT:  printf("%g", v.f); break;
                 case V_BOOL:   fputs(v.b ? "true" : "false", stdout); break;
                 case V_STRING: fputs(v.s, stdout); break;
-                case V_PTR:    printf("<ptr %p>", (void *)v.p); break;
+                case V_PTR:
+                    /* *u8 buffer? print as bytes. otherwise dump the pointer. */
+                    if (v.p && v.p->kind == V_ARRAY) {
+                        for (size_t j = 0; j < v.p->arr.len; j++) {
+                            int byte = (int)(v.p->arr.items[j].i & 0xFF);
+                            fputc(byte, stdout);
+                        }
+                    } else {
+                        printf("<ptr %p>", (void *)v.p);
+                    }
+                    break;
                 default:       fputs("<?>", stdout);
                 }
             }
@@ -417,7 +427,21 @@ static Value eval(Interp *I, Frame *f, Expr *e) {
     case EX_INT:    return V_int(e->int_val);
     case EX_FLOAT:  return V_float(e->float_val);
     case EX_BOOL:   return V_bool(e->bool_val);
-    case EX_STRING: return V_string(e->str_val ? e->str_val : "");
+    case EX_STRING: {
+        /* lower a string literal to a fresh *u8 buffer.
+         * each evaluation gets its own array so reverse(s,n) can mutate
+         * without poisoning the source. cheap and dumb; no interning. */
+        const char *s = e->str_val ? e->str_val : "";
+        size_t n = strlen(s);
+        Value *arr = (Value *)calloc(1, sizeof(Value));
+        arr->kind = V_ARRAY;
+        arr->arr.len = n;
+        arr->arr.elem = NULL;
+        arr->arr.items = (Value *)calloc(n ? n : 1, sizeof(Value));
+        for (size_t i = 0; i < n; i++)
+            arr->arr.items[i] = V_int((unsigned char)s[i]);
+        return V_ptr(arr);
+    }
     case EX_IDENT: {
         if (strcmp(e->ident, "null") == 0) return V_ptr(NULL);
         Binding *b = find(f, e->ident);
