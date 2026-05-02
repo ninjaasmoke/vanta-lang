@@ -1,0 +1,35 @@
+module main;
+
+// Struct invariants: every mutation point of a Range must leave the
+// struct with `lo <= hi`. The @debug @invariant clause documents that
+// rule once, in the type, instead of repeating it at every callsite.
+//
+// (The interpreter only checks this when the gating attribute is
+// active; --release builds carry no struct overhead.)
+
+struct Range {
+    lo: int
+    hi: int
+
+    @debug @invariant(lo <= hi)
+}
+
+@debug
+@requires(r != null)
+@requires(r.lo <= r.hi)
+fn extend(r: *Range, by: int) {
+    r.hi = r.hi + by;
+}
+
+fn main() -> int {
+    r := alloc(Range);
+    r.lo = 0;
+    r.hi = 5;
+
+    extend(r, 3);            // lo=0, hi=8
+    extend(r, 2);            // lo=0, hi=10
+
+    width := r.hi - r.lo;    // 10
+    free(r);
+    return width;
+}

@@ -1,0 +1,23 @@
+module main;
+
+// `result` in @ensures refers to the function's return value. Pair
+// it with @requires to express clamp's contract precisely.
+
+@requires(lo <= hi)
+@ensures(result >= lo && result <= hi)
+fn clamp(x: int, lo: int, hi: int) -> int {
+    if x < lo {
+        return lo;
+    }
+    if x > hi {
+        return hi;
+    }
+    return x;
+}
+
+fn main() -> int {
+    a := clamp(5, 0, 10);     // 5
+    b := clamp(-3, 0, 10);    // 0
+    c := clamp(99, 0, 10);    // 10
+    return a + b + c;         // 15
+}

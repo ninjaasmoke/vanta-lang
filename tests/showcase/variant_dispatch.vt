@@ -1,0 +1,40 @@
+module main;
+
+// Function variants gated by attributes — the headline feature.
+//
+// Two variants of `divide`. Same name, same arg list. The compiler
+// picks one based on `--attr`. There is no runtime branch; the
+// non-selected variant is gone.
+//
+//   --debug    : the @requires(d != 0) variant. Will trip a clean
+//                contract failure on divide-by-zero.
+//   --release  : the bare variant. Faster (no check), but division
+//                by zero is undefined behavior — your problem.
+//
+// Demonstration:
+//   $ ./vanta run --debug   examples/showcase/variant_dispatch.vt
+//   runtime error at .... : @requires failed in 'divide'   (exit 2)
+//
+//   $ ./vanta run --release examples/showcase/variant_dispatch.vt
+//   runtime error at .... : division by zero               (exit 2)
+//
+// Same source, two distinct binaries. C would do this with macros
+// and ifdef noise.
+
+@debug
+@requires(d != 0)
+fn divide(n: int, d: int) -> int {
+    return n / d;
+}
+
+@release
+fn divide(n: int, d: int) -> int {
+    return n / d;
+}
+
+fn main() -> int {
+    a := divide(20, 4);     // 5, both modes
+    b := divide(7, 0);      // boom in either mode, but with different
+                            // diagnostics
+    return a + b;
+}

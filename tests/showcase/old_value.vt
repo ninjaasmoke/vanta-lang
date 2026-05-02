@@ -1,0 +1,32 @@
+module main;
+
+// `old(expr)` snapshots a value on call entry so the postcondition
+// can talk about pre-call state. Counter is one of the cleanest
+// examples — every increment must move the value up by exactly one.
+//
+// Drop --attr debug and the postcondition is gone from the IR. No
+// runtime cost.
+
+struct Counter {
+    n: int
+}
+
+@debug
+@requires(c != null)
+@ensures(c.n == old(c.n) + 1)
+fn bump(c: *Counter) {
+    c.n = c.n + 1;
+}
+
+fn main() -> int {
+    c := alloc(Counter);
+    c.n = 0;
+
+    bump(c);
+    bump(c);
+    bump(c);
+
+    r := c.n;       // 3
+    free(c);
+    return r;
+}
