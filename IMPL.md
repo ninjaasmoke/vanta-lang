@@ -74,9 +74,13 @@ true false
 
 ## 3.3 Literals
 
-* Integer: `123`
+* Integer: `123`, `0xff`, `0b1010`
 * Float: `1.23`
 * Boolean: `true`, `false`
+* Character: `'A'`, `'\n'`, `'\0'` — value is the byte (0..255). Type is
+  `int` by default; assignable to `u8` in context.
+* String: `"hello"` — a `*u8` to a fresh byte buffer of length N (no
+  null terminator; pass length explicitly).
 
 ---
 

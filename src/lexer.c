@@ -147,6 +147,42 @@ static Token lex_string(Lexer *L, const char *start, int line, int col) {
     return make(L, TK_STRING, start, line, col);
 }
 
+/* 'c' character literal -> emits TK_INT with the byte value as the payload.
+ * the type system can give it u8 in context; arithmetic with int just works.
+ * supports the usual escapes: \n \t \r \\ \' \0 . */
+static Token lex_char(Lexer *L, const char *start, int line, int col) {
+    /* opening quote already consumed */
+    int ch = peek(L);
+    if (ch == 0 || ch == '\n')
+        return make_err(L, "unterminated character literal", start, line, col);
+
+    if (ch == '\\') {
+        advance(L);
+        int esc = advance(L);
+        switch (esc) {
+        case 'n':  ch = '\n'; break;
+        case 't':  ch = '\t'; break;
+        case 'r':  ch = '\r'; break;
+        case '\\': ch = '\\'; break;
+        case '\'': ch = '\''; break;
+        case '"':  ch = '"';  break;
+        case '0':  ch = '\0'; break;
+        default:
+            return make_err(L, "unknown escape in char literal", start, line, col);
+        }
+    } else {
+        advance(L);
+    }
+
+    if (peek(L) != '\'')
+        return make_err(L, "expected closing ' on char literal", start, line, col);
+    advance(L);
+
+    Token t = make(L, TK_INT, start, line, col);
+    t.int_val = ch & 0xFF;
+    return t;
+}
+
 Token lexer_next(Lexer *L) {
     skip_trivia(L);
     int line = L->line, col = L->col;
@@ -196,6 +232,7 @@ Token lexer_next(Lexer *L) {
     case '|': if (match(L, '|')) return make(L, TK_OR,      start, line, col);
               return make_err(L, "stray '|'", start, line, col);
     case '"': return lex_string(L, start, line, col);
+    case '\'': return lex_char(L, start, line, col);
     }
     return make_err(L, "unexpected character", start, line, col);
 }
