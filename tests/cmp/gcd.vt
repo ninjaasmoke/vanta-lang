@@ -1,0 +1,19 @@
+module main;
+
+// Euclid's algorithm. exit code = gcd(48, 18) = 6.
+//
+// Verdict: even. The Vanta version is one declaration shorter
+// because `t := b` infers, but that's about it.
+
+fn gcd(a: int, b: int) -> int {
+    while b != 0 {
+        t := b;
+        b = a % b;
+        a = t;
+    }
+    return a;
+}
+
+fn main() -> int {
+    return gcd(48, 18);
+}

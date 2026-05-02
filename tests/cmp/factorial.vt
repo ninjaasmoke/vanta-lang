@@ -1,0 +1,18 @@
+module main;
+
+// factorial(10) = 3628800. Take it mod 10000 so it fits in an exit code.
+// Same recursive shape as the C sibling.
+//
+// Verdict: roughly even. Vanta's `if n <= 1 { ... }` saves the
+// parens, C's `?` would let you fold this into one line. Push.
+
+fn fact(n: int) -> int {
+    if n <= 1 {
+        return 1;
+    }
+    return n * fact(n - 1);
+}
+
+fn main() -> int {
+    return fact(10) % 10000;     // 8800
+}
