@@ -1,0 +1,43 @@
+module main;
+
+// Singly linked list: build {1,2,3,4,5}, then sum it.
+// exit code = sum = 15.
+//
+// Vanta does this OK with the `alloc(T)` builtin (returns a *T to one
+// freshly zeroed cell). The C version is more direct because Node** is
+// a real type you can take the address of; we have to thread cons.
+//
+// Verdict: C wins on compactness. Vanta gets a tie-breaker @requires
+// (n != null) on list_sum that would have caught a mid-night nil-deref
+// in the C version more than once.
+
+struct Node {
+    value: int
+    next:  *Node
+}
+
+fn cons(v: int, n: *Node) -> *Node {
+    x := alloc(Node);
+    x.value = v;
+    x.next  = n;
+    return x;
+}
+
+fn list_sum(n: *Node) -> int {
+    s := 0;
+    while n != null {
+        s = s + n.value;
+        n = n.next;
+    }
+    return s;
+}
+
+fn main() -> int {
+    l := null;
+    i := 5;
+    while i >= 1 {
+        l = cons(i, l);
+        i = i - 1;
+    }
+    return list_sum(l);   // 15
+}
