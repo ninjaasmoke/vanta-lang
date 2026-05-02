@@ -78,9 +78,46 @@ static const char *op_str(Op o) {
     return "?";
 }
 
+/* precedence level for output. only used by the printer, not the parser. */
+static int op_prec(Op o) {
+    switch (o) {
+    case OP_OR:                                       return 1;
+    case OP_AND:                                      return 2;
+    case OP_BITOR:                                    return 3;
+    case OP_BITXOR:                                   return 4;
+    case OP_BITAND:                                   return 5;
+    case OP_EQ: case OP_NEQ:                          return 6;
+    case OP_LT: case OP_GT: case OP_LE: case OP_GE:   return 7;
+    case OP_SHL: case OP_SHR:                         return 8;
+    case OP_ADD: case OP_SUB:                         return 9;
+    case OP_MUL: case OP_DIV: case OP_MOD:            return 10;
+    default:                                          return 11; /* unary etc */
+    }
+}
+
+/* prec of the outermost op of e, or +inf for atoms. */
+static int expr_prec(const Expr *e) {
+    if (!e) return 99;
+    if (e->kind == EX_BINARY) return op_prec(e->binary.op);
+    return 99;
+}
+
 static void print_expr(const Expr *e, int d);
 
 static void print_expr_inline(const Expr *e) { print_expr(e, 0); }
+
+/* like print_expr_inline, but wrap in parens if the child's prec is lower
+ * than `parent_prec`. eliminates the parade of redundant ()s the old printer
+ * produced for things like '(a + b) - 1'. */
+static void print_sub(const Expr *child, int parent_prec) {
+    if (expr_prec(child) < parent_prec) {
+        fputc('(', stdout);
+        print_expr_inline(child);
+        fputc(')', stdout);
+    } else {
+        print_expr_inline(child);
+    }
+}
 
 static void print_expr(const Expr *e, int d) {
     if (!e) { fputs("<null>", stdout); return; }
@@ -93,12 +130,14 @@ static void print_expr(const Expr *e, int d) {
     case EX_UNARY:
         fputs(op_str(e->unary.op), stdout);
         print_expr_inline(e->unary.e); break;
-    case EX_BINARY:
-        fputc('(', stdout);
-        print_expr_inline(e->binary.l);
+    case EX_BINARY: {
+        int pp = op_prec(e->binary.op);
+        /* left-assoc: left child at >= pp, right child at > pp. */
+        print_sub(e->binary.l, pp);
         printf(" %s ", op_str(e->binary.op));
-        print_expr_inline(e->binary.r);
-        fputc(')', stdout); break;
+        print_sub(e->binary.r, pp + 1);
+        break;
+    }
     case EX_CALL:
         print_expr_inline(e->call.callee);
         fputc('(', stdout);
