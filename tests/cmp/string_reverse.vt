@@ -1,21 +1,22 @@
 module main;
 
-// Reverse a 'string' in place.
+// Reverse a string in place.
 //
-// THIS IS WHERE C IS THE GOLD STANDARD AGAIN.
+// Now a fair fight against string_reverse.c (for a while it was a
+// rout — see git history, we used to fake strings with int arrays).
 //
-// Vanta has no `char` type, no string mutation, no `strlen`. The
-// `string` literal exists but it's read-only and basically useless
-// without bytes-as-integers and a real heap. So we fake the whole
-// thing with an int array holding ASCII codes and pretend.
+//   * `s := "hello";` allocates a fresh mutable *u8 of length 5.
+//   * `s[i]` reads/writes a byte, just like char in C.
+//   * `'o' == 111` because character literals are bytes.
 //
-// In C this is a 4-line function. Here it's a parade of ceremony.
+// The one thing C still has on us is `strlen`. We pass the length
+// in by hand. Honestly that's what a careful C programmer does
+// anyway — strlen-on-every-call is a known footgun.
 //
-// Returns the ASCII value of the new first char ('o' = 111) so the
-// runner can compare exit codes.
+// Returns the ASCII value of the new first char ('o' = 111).
 
 @requires(n >= 0)
-fn reverse(s: *int, n: int) {
+fn reverse(s: *u8, n: int) {
     i := 0;
     while i < n / 2 {
         t := s[i];
@@ -26,16 +27,7 @@ fn reverse(s: *int, n: int) {
 }
 
 fn main() -> int {
-    s := alloc_array(int, 5);
-    s[0] = 104;     // 'h'
-    s[1] = 101;     // 'e'
-    s[2] = 108;     // 'l'
-    s[3] = 108;     // 'l'
-    s[4] = 111;     // 'o'
-
+    s := "hello";
     reverse(s, 5);
-
-    r := s[0];      // expect 'o' = 111
-    free(s);
-    return r;
+    return s[0];          // 'o' = 111
 }
