@@ -1,11 +1,11 @@
 module main;
 
-// Variant dispatch — the actual point of it.
+// Variant dispatch - the actual point of it.
 //
 // Two `trace` functions, same name, same signature, completely
 // different bodies. You CANNOT express this with a single body +
 // @debug @ensures: the bodies do different things (println vs
-// nothing) — they have different side effects, not different
+// nothing) - they have different side effects, not different
 // contracts.
 //
 // Sema picks one variant per call site based on --attr. The

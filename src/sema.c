@@ -292,7 +292,7 @@ static AttrSet decl_required_attrs(Sema *S, AttrVec *attrs) {
         Attr *a = attrs->data[i];
         if (is_invariant_attr(a->name)) continue;
         /* if the *next* attr is an invariant, this attr is the gate
-         * for that invariant — not for the fn variant. skip it. */
+         * for that invariant - not for the fn variant. skip it. */
         if (i + 1 < attrs->len && is_invariant_attr(attrs->data[i + 1]->name))
             continue;
         names[k++] = a->name;
