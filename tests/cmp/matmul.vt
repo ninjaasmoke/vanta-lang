@@ -1,0 +1,60 @@
+module main;
+
+// 3x3 matrix multiply. exit code = result[2][2].
+//
+// A = {{1,2,3},{4,5,6},{7,8,9}}
+// B = identity
+// A*B = A, so result[2][2] = 9.
+//
+// THIS IS WHERE C IS THE GOLD STANDARD AGAIN.
+//
+// We have no [N][M]T type, so we flatten everything into a 1D array
+// and index as `m[i*N + j]` by hand. That works, but you lose all
+// the documentation a real type system would give you. Compare:
+//
+//   C       int A[3][3];                     // shape is in the type
+//   Vanta   A := alloc_array(int, 9);        // shape is in your head
+//
+// Vanta's @requires(N > 0) on matmul is a small consolation.
+
+@requires(n > 0)
+fn matmul(a: *int, b: *int, c: *int, n: int) {
+    i := 0;
+    while i < n {
+        j := 0;
+        while j < n {
+            k := 0;
+            sum := 0;
+            while k < n {
+                sum = sum + a[i * n + k] * b[k * n + j];
+                k = k + 1;
+            }
+            c[i * n + j] = sum;
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+}
+
+fn main() -> int {
+    a := alloc_array(int, 9);
+    b := alloc_array(int, 9);
+    c := alloc_array(int, 9);
+
+    a[0]=1; a[1]=2; a[2]=3;
+    a[3]=4; a[4]=5; a[5]=6;
+    a[6]=7; a[7]=8; a[8]=9;
+
+    // identity
+    b[0]=1; b[1]=0; b[2]=0;
+    b[3]=0; b[4]=1; b[5]=0;
+    b[6]=0; b[7]=0; b[8]=1;
+
+    matmul(a, b, c, 3);
+
+    r := c[8];   // c[2][2] = 9
+    free(a);
+    free(b);
+    free(c);
+    return r;
+}
