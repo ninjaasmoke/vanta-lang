@@ -366,6 +366,15 @@ static Value eval_call(Interp *I, Frame *f, Expr *e) {
                 arr->arr.items[i] = elem ? default_value(elem) : V_int(0);
             return V_ptr(arr);
         }
+        if (strcmp(n, "alloc") == 0) {
+            /* alloc(T) -> *T. one fresh default-valued cell. */
+            const Type *elem = NULL;
+            if (e->call.args.len >= 1 && e->call.args.data[0]->resolved)
+                elem = e->call.args.data[0]->resolved;
+            Value *cell = (Value *)calloc(1, sizeof(Value));
+            *cell = elem ? default_value(elem) : V_int(0);
+            return V_ptr(cell);
+        }
         if (strcmp(n, "free") == 0) {
             for (size_t i = 0; i < e->call.args.len; i++) eval(I, f, e->call.args.data[i]);
             /* leak - see fixme */

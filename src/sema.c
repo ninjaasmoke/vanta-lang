@@ -499,8 +499,19 @@ static Type *check_call(Sema *S, Expr *e) {
         return p;
     }
     if (strcmp(name, "alloc") == 0) {
+        /* alloc(T) -> *T. arg0 is a type-as-ident, same trick as alloc_array. */
+        Type *elem = S->t_int;
+        if (e->call.args.len >= 1 && e->call.args.data[0]->kind == EX_IDENT) {
+            Type *p = prim_by_name(S, e->call.args.data[0]->ident);
+            if (p) elem = p;
+            else {
+                Type *st = find_struct(S, e->call.args.data[0]->ident);
+                if (st) elem = st;
+            }
+            e->call.args.data[0]->resolved = elem;
+        }
         Type *p = (Type *)arena_alloc_zero(S->arena, sizeof(Type));
-        p->kind = TY_PTR; p->elem = S->t_int; p->size = 8;
+        p->kind = TY_PTR; p->elem = elem; p->size = 8;
         e->resolved = p;
         return p;
     }
