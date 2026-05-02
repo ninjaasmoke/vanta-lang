@@ -8,34 +8,41 @@ interpreter. See [IMPL.md](IMPL.md) for the language specification.
 
 ## What's interesting about it
 
-- Functions can have multiple variants gated by attributes:
+- **Contracts that vanish in release.** `@requires` / `@ensures` /
+  `@invariant` are gated by an attribute. Active in `--debug`, dropped
+  in `--release` — no `#ifdef NDEBUG`, no per-callsite checks.
 
   ```c
-  @debug
-  @requires(s.size < s.capacity)
-  @ensures(s.size == old(s.size) + 1)
+  @debug @requires(s.size < s.capacity)
+  @debug @ensures(s.size == old(s.size) + 1)
   fn push(s: *Stack, v: int) {
-      s.data[s.size] = v
-      s.size += 1
-  }
-
-  @release
-  fn push(s: *Stack, v: int) {
-      s.data[s.size] = v
-      s.size += 1
+      s.data[s.size] = v;
+      s.size += 1;
   }
   ```
 
-  Build with `--attr debug` and the contract-checked variant runs.
-  Build with `--attr release` and the bare one runs. The two are
-  selected at sema time, not at runtime.
+  One body. The contract is part of the signature. `old(s.size)` is
+  captured on entry so the postcondition can talk about pre-call
+  state.
 
-- Invariants (`@requires` / `@ensures` / `@invariant`) are zero-cost
-  when their gating attribute isn't active - the lowering pass drops
-  them before the interpreter ever sees them.
+- **Function variants for when the bodies actually differ.** Same
+  name, same signature, different implementations selected at compile
+  time:
 
-- `old(expr)` is captured on entry to a function so postconditions
-  can reference pre-call state.
+  ```c
+  @debug
+  fn log(msg: int) { println(msg); }
+
+  @release
+  fn log(msg: int) { /* gone */ }
+  ```
+
+  The variant resolver picks one at sema time based on `--attr`. The
+  other is never lowered. C does this with macros and `#ifdef` piles.
+
+- **No runtime cost when checks are off.** The lowering pass drops
+  invariants whose gating attribute isn't active, so the interpreter
+  never even sees them.
 
 ## Build
 
